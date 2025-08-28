@@ -27,10 +27,14 @@ FirebaseConfig config;
 // --- Global Variables for Timing & Status ---
 unsigned long sendDataPrevMillis = 0;
 unsigned long controlCheckPrevMillis = 0;
+unsigned long scheduleCheckPrevMillis = 0;
+const int SCHEDULE_CHECK_INTERVAL = 30000; // Check for schedules every 30 seconds
+
 bool signupOK = false;
-bool isManualMode = false;
-bool lastAutoModeState = false; // true
+bool isManualMode = false;      // Controlled by remote, but overridden by schedule
+bool scheduleActive = false;    // True if a schedule is currently running
 int lastBrightnessValue = -1;
+int scheduleBrightness = 0;   // To store the brightness from the active schedule
 
 // --- LED & LDR Configuration ---
 #define LDR_PIN         32   // ADC1 channel 4
@@ -43,109 +47,198 @@ const int MIN_BRIGHTNESS = 10;
 const int MAX_BRIGHTNESS = 100;
 
 // --- Function Prototypes ---
-void setup_wifi();
-void initializeFirebase();
-void sendLEDDataToFirebase(int rawLDR, float voltage, float lux, int brightness);
-String getFormattedTimestamp();
+// void setup_wifi();
+// void initializeFirebase();
+// void sendLEDDataToFirebase(int rawLDR, float voltage, float lux, int brightness);
+// String getFormattedTimestamp();
+// void setLEDBrightness(int percent);
+// void checkSchedules();
+// void checkRemoteControl();
+// void runAutoMode();
+// void printCurrentState();
 
 void setup() {
   Serial.begin(115200);
-  
-  // Initialize hardware pins
   pinMode(LED_PIN, OUTPUT);
-  analogReadResolution(12);   // Use 12-bit ADC resolution
+  analogReadResolution(12); // Use 12-bit ADC resolution
   
   setup_wifi();
   initializeFirebase();
 
-  Serial.println("\nAdaptive LED Brightness System (Firebase Enabled)");
+  Serial.println("\nSmart LED Grow Light Module");
   Serial.println("-----------------------------------------------------------------");
 }
 
 void loop() {
-  // Use non-blocking timer to send data every 10 seconds
-  if (!isManualMode && Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 10000)) {
-    sendDataPrevMillis = millis();
-
-    int rawLDR = analogRead(LDR_PIN);
-    
-    // Prevent division by zero if the reading is 0
-    if (rawLDR == 0) {
-      Serial.println("Error: LDR reading is 0. Check wiring.");
-      return; // Skip the rest of the loop
-    }
-    
-    float voltage = rawLDR * (3.3 / 4095.0);
-    float lux = 500 / voltage;
-
-    // Invert mapping: brighter environment → lower LED brightness
-    int brightness = map(lux, MIN_LUX, MAX_LUX, MAX_BRIGHTNESS, MIN_BRIGHTNESS);
-    brightness = constrain(brightness, MIN_BRIGHTNESS, MAX_BRIGHTNESS);
-
-    setLEDBrightness(brightness);
-
-    Serial.print("Raw LDR: ");
-    Serial.print(rawLDR);
-    Serial.print(" | Voltage: ");
-    Serial.print(voltage);
-    Serial.print("V | Lux: ");
-    Serial.print(lux);
-    Serial.print(" | Brightness: ");
-    Serial.print(brightness);
-    Serial.println("%");
-
-    sendLEDDataToFirebase(rawLDR, voltage, lux, brightness);
+  // Highest priority: Check for active schedules periodically.
+  if (millis() - scheduleCheckPrevMillis > SCHEDULE_CHECK_INTERVAL) {
+    scheduleCheckPrevMillis = millis();
+    checkSchedules();
   }
-  
-  // Check for remote control commands every 2 seconds
-  if (millis() - controlCheckPrevMillis > 2000) {
+
+  // If a schedule is NOT active, then check for remote control commands.
+  if (!scheduleActive && (millis() - controlCheckPrevMillis > 2000)) {
     controlCheckPrevMillis = millis();
     checkRemoteControl();
   }
+
+  // If neither schedule nor manual mode is active, run auto mode.
+  if (!scheduleActive && !isManualMode && Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 10000)) {
+    sendDataPrevMillis = millis();
+    runAutoMode();
+  }
+
+  printCurrentState();
+  delay(1000); // Slow down the printing loop
 }
 
 void setLEDBrightness(int percent) {
-  // Convert percentage to PWM value (0-255)
-  int pwmValue = percent * 255 / 100;
+  int pwmValue = map(percent, 0, 100, 0, 255);
   analogWrite(LED_PIN, pwmValue);
 }
 
-void checkRemoteControl() {
-  if (Firebase.ready() && WiFi.status() == WL_CONNECTED) {
-    // Check for auto mode changes
-    if (Firebase.RTDB.getBool(&fbdo, "/control/led/auto_mode")) {
-      bool autoMode = fbdo.boolData();
+void checkSchedules() {
+  if (!Firebase.ready() || WiFi.status() != WL_CONNECTED) {
+    return; // Can't check schedules without connection
+  }
+
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time for schedule check.");
+    return;
+  }
+
+  int currentDay = timeinfo.tm_wday; // Sunday = 0, Saturday = 6
+  int currentTime = timeinfo.tm_hour * 100 + timeinfo.tm_min;
+  
+  bool foundActiveSchedule = false;
+
+  // Loop through up to 5 possible schedules
+  for (int i = 1; i <= 5; i++) {
+    String path = "/control/led/schedules/schedule_" + String(i);
+    
+    // Check if the schedule exists and is enabled
+    if (Firebase.RTDB.getBool(&fbdo, path + "/enabled") && fbdo.boolData()) {
       
-      // Only process if the value has changed
-      if (autoMode != lastAutoModeState) {
-        lastAutoModeState = autoMode;
-        isManualMode = !autoMode;
-        
-        if (autoMode) {
-          Serial.println("Switched to auto mode.");
-          // Reset timer to get an immediate reading
-          sendDataPrevMillis = 0;
-        } else {
-          Serial.println("Switched to manual mode.");
+      // Get schedule details
+      String startTimeStr, endTimeStr, daysStr;
+      
+      if (Firebase.RTDB.getString(&fbdo, path + "/start_time")) startTimeStr = fbdo.stringData();
+      else { Serial.println("--> ERROR: Failed to get start_time for " + path); continue; }
+      
+      if (Firebase.RTDB.getString(&fbdo, path + "/end_time")) endTimeStr = fbdo.stringData();
+      else { Serial.println("--> ERROR: Failed to get end_time for " + path); continue; }
+      
+      if (Firebase.RTDB.getInt(&fbdo, path + "/brightness")) scheduleBrightness = fbdo.intData();
+      else { Serial.println("--> ERROR: Failed to get brightness for " + path); continue; }
+
+      if (Firebase.RTDB.getString(&fbdo, path + "/days")) daysStr = fbdo.stringData();
+      else { Serial.println("--> ERROR: Failed to get days for " + path); continue; }
+
+      // --- Time & Day Validation ---
+      int startTime = atoi(startTimeStr.substring(0, 2).c_str()) * 100 + atoi(startTimeStr.substring(3).c_str());
+      int endTime = atoi(endTimeStr.substring(0, 2).c_str()) * 100 + atoi(endTimeStr.substring(3).c_str());
+      
+      // Check if current day is in the schedule's day list
+      if (daysStr.indexOf(String(currentDay)) != -1) {
+        // Check if current time is within the schedule's time range
+        if (currentTime >= startTime && currentTime < endTime) {
+          foundActiveSchedule = true;
+          break; // Found an active schedule, no need to check others
         }
       }
     }
+  }
 
-    // Check for manual brightness changes (only in manual mode)
-    if (isManualMode && Firebase.RTDB.getInt(&fbdo, "/control/led/brightness_lvl")) {
-      int manualBrightness = constrain(fbdo.intData(), 0, 100);
-      
-      // Only process if the value has changed
-      if (manualBrightness != lastBrightnessValue) {
-        lastBrightnessValue = manualBrightness;
-        setLEDBrightness(manualBrightness);
-        Serial.print("Manual brightness set to: ");
-        Serial.print(manualBrightness);
-        Serial.println("%");
+  // --- Update System State ---
+  if (foundActiveSchedule) {
+    if (!scheduleActive) { // Print only on state change
+      Serial.println("--> Schedule is now ACTIVE.");
+    }
+    scheduleActive = true;
+    setLEDBrightness(scheduleBrightness);
+    lastBrightnessValue = scheduleBrightness;
+  } else {
+    if (scheduleActive) { // Print only on state change
+      Serial.println("--> Schedule is now INACTIVE. Reverting to previous mode.");
+      // When schedule ends, revert to the state dictated by Firebase's auto_mode
+      if(Firebase.RTDB.getBool(&fbdo, "/control/led/auto_mode")){
+          isManualMode = !fbdo.boolData();
       }
+    }
+    scheduleActive = false;
+  }
+}
+
+void checkRemoteControl() {
+  if (!Firebase.ready() || WiFi.status() != WL_CONNECTED) return;
+
+  // Check for auto_mode flag from Firebase
+  if (Firebase.RTDB.getBool(&fbdo, "/control/led/auto_mode")) {
+    bool autoModeEnabled = fbdo.boolData();
+    // In our new logic, isManualMode is just the opposite of autoModeEnabled
+    if (isManualMode == autoModeEnabled) {
+      isManualMode = !autoModeEnabled;
+      Serial.print("--> Remote control changed mode to: ");
+      Serial.println(isManualMode ? "Manual" : "Auto");
+    }
+  }
+
+  // If in manual mode, check for brightness changes
+  if (isManualMode && Firebase.RTDB.getInt(&fbdo, "/control/led/brightness_lvl")) {
+    int manualBrightness = constrain(fbdo.intData(), 0, 100);
+    if (manualBrightness != lastBrightnessValue) {
+      lastBrightnessValue = manualBrightness;
+      setLEDBrightness(manualBrightness);
     }
   }
 }
+
+void runAutoMode() {
+  int rawLDR = analogRead(LDR_PIN);
+  if (rawLDR == 0) {
+    Serial.println("Error: LDR reading is 0. Check wiring.");
+    return;
+  }
+  float voltage = rawLDR * (3.3 / 4095.0);
+  float lux = 500 / voltage;
+  int brightness = map(lux, MIN_LUX, MAX_LUX, MAX_BRIGHTNESS, MIN_BRIGHTNESS);
+  brightness = constrain(brightness, MIN_BRIGHTNESS, MAX_BRIGHTNESS);
+
+  Serial.print("Raw LDR: ");
+  Serial.print(rawLDR);
+  Serial.print(" | Voltage: ");
+  Serial.print(voltage);
+  Serial.print("V | Lux: ");
+  Serial.print(lux);
+  Serial.print(" | Brightness: ");
+  Serial.print(brightness);
+  Serial.println("%");
+
+  setLEDBrightness(brightness);
+  lastBrightnessValue = brightness; // Keep track of the last auto brightness
+  sendLEDDataToFirebase(rawLDR, voltage, lux, brightness);
+}
+
+void printCurrentState() {
+  static String lastPrintedState = "";
+  String currentState = "";
+
+  if (scheduleActive) {
+    currentState = "State: Schedule Active (" + String(scheduleBrightness) + "%)";
+  } else if (isManualMode) {
+    currentState = "State: Manual Mode (" + String(lastBrightnessValue) + "%)";
+  } else {
+    currentState = "State: Auto Mode";
+  }
+
+  if (currentState != lastPrintedState) {
+    Serial.println(currentState);
+    lastPrintedState = currentState;
+  }
+}
+
+// --- Helper Functions (WiFi, Firebase Init, etc.) ---
 
 void setup_wifi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -157,7 +250,6 @@ void setup_wifi() {
   Serial.println();
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
-
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
   Serial.println("Time configured via NTP.");
 }
@@ -165,14 +257,12 @@ void setup_wifi() {
 void initializeFirebase() {
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
-
   if (Firebase.signUp(&config, &auth, "", "")) {
     Serial.println("Firebase signup OK");
     signupOK = true;
   } else {
     Serial.printf("Signup error: %s\n", config.signer.signupError.message.c_str());
   }
-
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
 }
@@ -181,7 +271,6 @@ void sendLEDDataToFirebase(int rawLDR, float voltage, float lux, int brightness)
   if (Firebase.ready() && WiFi.status() == WL_CONNECTED) {
     FirebaseJson json;
     String timestamp = getFormattedTimestamp();
-
     json.set("timestamp", timestamp);
     json.set("raw_ldr", String(rawLDR));
     json.set("voltage", String(voltage, 2));
@@ -211,7 +300,6 @@ void sendLEDDataToFirebase(int rawLDR, float voltage, float lux, int brightness)
 String getFormattedTimestamp() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
     return "1970-01-01 00:00:00";
   }
   char timeStringBuff[50];
