@@ -42,8 +42,8 @@ float distance_points[CALIBRATION_POINTS] = {7.27, 8.5, 9.96, 12.06, 15.5, 16.88
 float volume_points[CALIBRATION_POINTS]   = {600,  500, 400,   300,   200,   100,   0};     // Corresponding volume (mL)
 
 // --- Alerting Thresholds ---
-const float LOW_WATER_THRESHOLD = 0.20;
-const float HIGH_WATER_THRESHOLD = 0.90;
+float LOW_WATER_THRESHOLD = 0.20; // Default low threshold (20%), can be updated from Firebase
+float HIGH_WATER_THRESHOLD = 0.90; // Default high threshold (90%), can be updated from Firebase
 float MAX_VOLUME = 600;
 
 // --- Function Prototypes ---
@@ -71,7 +71,7 @@ void setup() {
   setup_wifi();
   initializeFirebase();
 
-  Serial.println("\nSmart Water Level Monitoring System (Firebase Enabled)");
+  Serial.println("\nSmart Water Level Monitoring Module");
   Serial.println("-----------------------------------------------------------------");
 }
 
@@ -96,7 +96,6 @@ void loop() {
       Serial.println("%)");
 
       sendDataToFirebase(distance, volume, percentage);
-      // This single function now handles all buzzer logic
       checkWaterLevelAndBuzzer(volume);
     } else {
       Serial.println("Error: Could not read from sensor.");
@@ -166,49 +165,58 @@ void sendDataToFirebase(float distance, float volume, float percentage) {
 }
 
 /**
- * @brief Checks water level and controls the buzzer based on a master mode setting in Firebase.
+ * @brief Checks water level, fetches thresholds from Firebase, and controls the buzzer
+ * based on a "silent mode" setting.
  */
 void checkWaterLevelAndBuzzer(float volume) {
-  // Check the master buzzer mode from Firebase first
-  int buzzerMode = 0; // Default to OFF
+  // --- Step 1: Fetch all control settings from Firebase ---
+  int buzzerMode = 0; // Default to 0 (silent mode is ON)
+
   if (Firebase.ready() && WiFi.status() == WL_CONNECTED) {
-    if (Firebase.RTDB.getInt(&fbdo, "/control/buzzer_mode")) {
+    // Get the silent mode setting (0=Silent, 1=Audible)
+    if (Firebase.RTDB.getInt(&fbdo, "/control/water_lvl/buzzer_mode")) {
       buzzerMode = fbdo.intData();
     }
+
+    // Fetch the HIGH water level threshold percentage
+    float tempHigh;
+    if (Firebase.RTDB.getFloat(&fbdo, "/control/water_lvl/high_lvl_threshold")) {
+        tempHigh = fbdo.floatData();
+        // Convert from percentage (e.g., 90) to ratio (e.g., 0.90)
+        HIGH_WATER_THRESHOLD = tempHigh / 100.0;
+        Serial.printf("-> Fetched HIGH threshold: %.1f%%\n", tempHigh);
+    }
+
+    // Fetch the LOW water level threshold percentage
+    float tempLow;
+    if (Firebase.RTDB.getFloat(&fbdo, "/control/water_lvl/low_lvl_threshold")) {
+        tempLow = fbdo.floatData();
+        // Convert from percentage (e.g., 20) to ratio (e.g., 0.20)
+        LOW_WATER_THRESHOLD = tempLow / 100.0;
+        Serial.printf("-> Fetched LOW threshold: %.1f%%\n", tempLow);
+    }
   }
 
-  // If buzzer mode is 0 (disabled), turn it off and do nothing else.
-  if (buzzerMode == 0) {
-    digitalWrite(BUZZER_PIN, LOW);
-    return;
-  }
-
-  // --- If buzzer_mode is 1, proceed with the original logic ---
+  // --- Step 2: Always check for alerts and log them to the Serial Monitor ---
+  bool alertCondition = false; // Flag to track if an automatic alert exists
   float percentage = volume / MAX_VOLUME;
 
-  // Priority 1: Check for local alerts
   if (percentage < LOW_WATER_THRESHOLD) {
-    Serial.println("ALERT: Water level LOW!");
-    digitalWrite(BUZZER_PIN, HIGH);
+    Serial.printf("ALERT: Water level LOW! (%.2f%% < %.2f%%)\n", percentage * 100, LOW_WATER_THRESHOLD * 100);
+    alertCondition = true;
   } else if (percentage > HIGH_WATER_THRESHOLD) {
-    Serial.println("ALERT: Water level HIGH!");
+    Serial.printf("ALERT: Water level HIGH! (%.2f%% > %.2f%%)\n", percentage * 100, HIGH_WATER_THRESHOLD * 100);
+    alertCondition = true;
+  }
+
+  // --- Step 3: Control the physical buzzer based on the silent mode setting ---
+  // The buzzer will only sound if an alert exists AND silent mode is OFF (buzzerMode == 1).
+  if (buzzerMode == 1 && alertCondition) {
     digitalWrite(BUZZER_PIN, HIGH);
   } else {
-    // Priority 2: If no local alert, check for remote manual control
-    int manualBuzzerState = 0; // Default to OFF
-    if (Firebase.ready() && WiFi.status() == WL_CONNECTED) {
-        if (Firebase.RTDB.getInt(&fbdo, "/control/buzzer")) {
-            manualBuzzerState = fbdo.intData();
-        }
-    }
-    
-    digitalWrite(BUZZER_PIN, manualBuzzerState == 1 ? HIGH : LOW);
-    if (manualBuzzerState == 1) {
-      Serial.println("Buzzer ON by remote control.");
-    }
+    digitalWrite(BUZZER_PIN, LOW);
   }
 }
-
 
 String getFormattedTimestamp() {
   struct tm timeinfo;
@@ -222,7 +230,7 @@ String getFormattedTimestamp() {
 }
 
 
-// --- Your Existing Helper Functions (Unchanged) ---
+// --- Helper Functions ---
 void sortArray(float arr[], int size) {
   for (int i = 0; i < size - 1; i++) {
     for (int j = 0; j < size - i - 1; j++) {
