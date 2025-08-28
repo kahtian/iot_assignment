@@ -10,7 +10,7 @@ This Arduino sketch, running on an ESP32, controls a smart LED grow light. It fe
 - **Operating Modes**:
     - **Auto Mode**: Adjusts LED brightness dynamically based on ambient light detected by an LDR sensor.
     - **Manual Mode**: Allows for remote control of LED brightness via Firebase.
-    - **Scheduled Mode**: Supports time-based scheduling for automated LED operation.
+    - **Scheduled Mode**: Supports time-based scheduling with customizable LED brightness.
 - **Data Logging**: Sends LDR readings, voltage, lux, and brightness percentage to Firebase.
 
 ### 2. 💧 Smart Watering System (ESP32 - `soul_esp` & Raspberry Pi - `soil_pi.py`)
