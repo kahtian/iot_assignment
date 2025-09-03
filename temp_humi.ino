@@ -6,19 +6,25 @@
 #define DHT_PIN 21
 #define LEDWIFI_PIN 25
 #define FAN_PIN 5
-#define SERVO_PIN 12  // Changed from 13 to 12
+#define SERVO_PIN 12
 
 DHT dht(DHT_PIN, DHT_TYPE);
 Servo windowServo;
 bool ledwifi_state;
-bool windowOpen = false; // Track window state
+int currentServoAngle = 0; // Track current servo position
 
-const char* wifi_ssid = "B100M-T8";     // YOUR WIFI SSID
-const char* wifi_password = "12345678"; // YOUR WIFI PASSWORD
+const char* wifi_ssid = "B100M-T8";
+const char* wifi_password = "12345678";
 
 // PWM config for fan
-const int pwmFreq = 25000;   // 25 kHz (above audible range)
-const int pwmResolution = 8; // 8-bit (0-255)
+const int pwmFreq = 25000;
+const int pwmResolution = 8;
+
+// Temperature and servo angle mapping
+const float MIN_TEMP = 27.0;    // Temperature threshold to start opening window
+const float MAX_TEMP = 32.0;    // Temperature for maximum window opening
+const int MIN_ANGLE = 0;        // Minimum servo angle (closed)
+const int MAX_ANGLE = 180;      // Maximum servo angle (fully open)
 
 WiFiClient espClient;
 
@@ -26,28 +32,29 @@ void setup() {
   Serial.begin(115200);
   pinMode(LEDWIFI_PIN, OUTPUT);
 
-  // *** CRITICAL: Setup servo motor FIRST to avoid timer conflicts ***
+  // Setup servo motor FIRST
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
-  
+ 
   windowServo.setPeriodHertz(50);
   windowServo.attach(SERVO_PIN, 500, 2400);
   windowServo.write(0); // Start with window closed
-  delay(1000); // Give servo time to initialize properly
-  
-  // Setup PWM for fan AFTER servo
+  currentServoAngle = 0;
+  delay(1000);
+ 
+  // Setup PWM for fan
   ledcAttach(FAN_PIN, pwmFreq, pwmResolution);
-  ledcWrite(FAN_PIN, 0); // Ensure fan is OFF at start
-  
+  ledcWrite(FAN_PIN, 0);
+ 
   setup_wifi();
   dht.begin();
+ 
+  Serial.println("Enhanced Temperature Control Started!");
+  Serial.println("Window will open proportionally with temperature increase");
   
-  Serial.println("Temperature Humidity Module with Fan and Window Control Started!");
-  
-  // Test servo immediately after setup
-  Serial.println("Testing servo motor...");
+  // Test servo
   testServo();
 }
 
@@ -68,7 +75,7 @@ void setup_wifi() {
 
 void loop() {
   readDHT();
-  delay(2000); // read every 2s
+  delay(2000);
 }
 
 void readDHT() {
@@ -86,97 +93,93 @@ void readDHT() {
   Serial.print(t);
   Serial.println("°C");
 
+  // Calculate fan speed (existing logic)
   int fanSpeed = 0;
-  bool shouldOpenWindow = (t >= 27.0);
-
-  Serial.print("Current window state: ");
-  Serial.println(windowOpen ? "OPEN" : "CLOSED");
-  Serial.print("Should window be open: ");
-  Serial.println(shouldOpenWindow ? "YES" : "NO");
-
-  if (shouldOpenWindow) {
-    // Temperature is high - turn on fan and open window
-    
-    // Map temperature (27–30°C) to fan speed (100–255)
-    fanSpeed = map(t, 27, 30, 100, 255);
+  if (t >= MIN_TEMP) {
+    fanSpeed = map(t * 10, MIN_TEMP * 10, 30 * 10, 100, 255); // Using *10 for better precision
     fanSpeed = constrain(fanSpeed, 100, 255);
-    
-    // Open window if not already open
-    if (!windowOpen) {
-      Serial.println(">>> TRIGGERING WINDOW OPEN <<<");
-      openWindow();
-      windowOpen = true;
-    } else {
-      Serial.println("Window already open, no action needed");
-    }
-    
-  } else {
-    // Temperature is normal - turn off fan and close window
-    fanSpeed = 0;
-    
-    // Close window if currently open
-    if (windowOpen) {
-      Serial.println(">>> TRIGGERING WINDOW CLOSE <<<");
-      closeWindow();
-      windowOpen = false;
-    } else {
-      Serial.println("Window already closed, no action needed");
-    }
   }
 
+  // Calculate servo angle proportionally
+  int targetServoAngle = 0;
+  if (t >= MIN_TEMP) {
+    // Map temperature to servo angle proportionally
+    targetServoAngle = map(t * 10, MIN_TEMP * 10, MAX_TEMP * 10, MIN_ANGLE, MAX_ANGLE);
+    targetServoAngle = constrain(targetServoAngle, MIN_ANGLE, MAX_ANGLE);
+  } else {
+    targetServoAngle = MIN_ANGLE; // Close window when temperature is below threshold
+  }
+
+  // Move servo smoothly to target angle
+  moveServoToAngle(targetServoAngle);
+
+  // Set fan speed
   ledcWrite(FAN_PIN, fanSpeed);
 
+  // Display status
   Serial.print("Fan Speed (PWM): ");
   Serial.println(fanSpeed);
-  Serial.print("Window Status: ");
-  Serial.println(windowOpen ? "OPEN" : "CLOSED");
+  Serial.print("Window Angle: ");
+  Serial.print(currentServoAngle);
+  Serial.print("° (Target: ");
+  Serial.print(targetServoAngle);
+  Serial.println("°)");
+  
+  // Show percentage of window opening
+  int windowPercentage = map(currentServoAngle, MIN_ANGLE, MAX_ANGLE, 0, 100);
+  Serial.print("Window Opening: ");
+  Serial.print(windowPercentage);
+  Serial.println("%");
   Serial.println("========================");
+}
+
+void moveServoToAngle(int targetAngle) {
+  if (currentServoAngle == targetAngle) {
+    return; // Already at target position
+  }
+
+  Serial.print("Moving window from ");
+  Serial.print(currentServoAngle);
+  Serial.print("° to ");
+  Serial.print(targetAngle);
+  Serial.println("°");
+
+  // Move servo smoothly in steps
+  int step = (targetAngle > currentServoAngle) ? 5 : -5; // 5-degree steps
+  
+  while (currentServoAngle != targetAngle) {
+    if (abs(targetAngle - currentServoAngle) < abs(step)) {
+      currentServoAngle = targetAngle; // Final step
+    } else {
+      currentServoAngle += step;
+    }
+    
+    windowServo.write(currentServoAngle);
+    Serial.print("Moving to: ");
+    Serial.println(currentServoAngle);
+    delay(50); // Small delay for smooth movement
+  }
+  
+  Serial.println("Window position updated!");
 }
 
 void testServo() {
   Serial.println("=== SERVO TEST START ===");
+  Serial.println("Testing proportional movement...");
   
-  // Test basic positions with longer delays
-  int testPositions[] = {0, 45, 90, 135, 180, 90, 0};
-  
-  for (int i = 0; i < 7; i++) {
+  // Test gradual movement
+  for (int angle = 0; angle <= 180; angle += 30) {
     Serial.print("Moving to: ");
-    Serial.print(testPositions[i]);
+    Serial.print(angle);
     Serial.println("°");
     
-    windowServo.write(testPositions[i]);
-    delay(1000); // Wait 1 second at each position
-    
-    Serial.println("Position reached, waiting...");
+    moveServoToAngle(angle);
+    delay(1000);
   }
+  
+  // Return to start position
+  moveServoToAngle(0);
   
   Serial.println("=== SERVO TEST END ===");
-  Serial.println("If servo didn't move, check power supply and wiring!");
   delay(2000);
-}
-
-void openWindow() {
-  Serial.println("*** OPENING WINDOW FUNCTION CALLED ***");
-  Serial.println("Moving servo to open window (0° to 180°)...");
-  
-  for (int pos = 0; pos <= 180; pos += 10) {
-    windowServo.write(pos);
-    Serial.print("Opening - Servo position: ");
-    Serial.println(pos);
-    delay(100);
-  }
-  Serial.println("*** WINDOW OPENED SUCCESSFULLY ***");
-}
-
-void closeWindow() {
-  Serial.println("*** CLOSING WINDOW FUNCTION CALLED ***");
-  Serial.println("Moving servo to close window (180° to 0°)...");
-  
-  for (int pos = 180; pos >= 0; pos -= 10) {
-    windowServo.write(pos);
-    Serial.print("Closing - Servo position: ");
-    Serial.println(pos);
-    delay(100);
-  }
-  Serial.println("*** WINDOW CLOSED SUCCESSFULLY ***");
 }
