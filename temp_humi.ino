@@ -53,9 +53,6 @@ void setup() {
  
   Serial.println("Enhanced Temperature Control Started!");
   Serial.println("Window will open proportionally with temperature increase");
-  
-  // Test servo
-  testServo();
 }
 
 void setup_wifi() {
@@ -161,25 +158,4 @@ void moveServoToAngle(int targetAngle) {
   }
   
   Serial.println("Window position updated!");
-}
-
-void testServo() {
-  Serial.println("=== SERVO TEST START ===");
-  Serial.println("Testing proportional movement...");
-  
-  // Test gradual movement
-  for (int angle = 0; angle <= 180; angle += 30) {
-    Serial.print("Moving to: ");
-    Serial.print(angle);
-    Serial.println("°");
-    
-    moveServoToAngle(angle);
-    delay(1000);
-  }
-  
-  // Return to start position
-  moveServoToAngle(0);
-  
-  Serial.println("=== SERVO TEST END ===");
-  delay(2000);
 }
