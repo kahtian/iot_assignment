@@ -28,7 +28,11 @@ FirebaseConfig config;
 
 // --- Global Variables for Timing & Status ---
 unsigned long sendDataPrevMillis = 0;
+unsigned long controlCheckPrevMillis = 0;
 bool signupOK = false;
+bool isManualMode = false;      // Controlled by remote
+int lastFanSpeed = -1;
+int lastWindowAngle = -1;
 
 // --- Sensor & Device Pin Configuration ---
 #define DHT_TYPE DHT22
@@ -57,8 +61,11 @@ void setup_wifi();
 void initializeFirebase();
 void sendDataToFirebase(float temp, float hum, int fanSpeed, int windowAngle);
 String getFormattedTimestamp();
-void controlDevicesAndSendData();
+void checkRemoteControl();
+void runAutoMode();
 void moveServoToAngle(int targetAngle);
+void setFanSpeed(int speed);
+void printCurrentState();
 
 void setup() {
     Serial.begin(115200);
@@ -83,14 +90,141 @@ void setup() {
     dht.begin();
     initializeFirebase(); // Initialize Firebase connection
 
-    Serial.println("Enhanced Temperature Control with Firebase Logging Started!");
+    Serial.println("\nSmart Temperature Control Module");
+    Serial.println("-----------------------------------------------------------------");
 }
 
 void loop() {
-    // This non-blocking timer runs the main logic every 10 seconds
-    if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 10000 || sendDataPrevMillis == 0)) {
+    // Check for remote control commands periodically
+    if (millis() - controlCheckPrevMillis > 2000) {
+        controlCheckPrevMillis = millis();
+        checkRemoteControl();
+    }
+
+    // If manual mode is not active, run auto mode
+    if (!isManualMode && Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 10000)) {
         sendDataPrevMillis = millis();
-        controlDevicesAndSendData();
+        runAutoMode();
+    }
+
+    printCurrentState();
+    delay(1000); // Slow down the printing loop
+}
+
+void checkRemoteControl() {
+    if (!Firebase.ready() || WiFi.status() != WL_CONNECTED) return;
+
+    // Check for auto_mode flag from Firebase
+    if (Firebase.RTDB.getBool(&fbdo, "/control/temp/auto_mode")) {
+        bool autoModeEnabled = fbdo.boolData();
+        // In our logic, isManualMode is just the opposite of autoModeEnabled
+        if (isManualMode == autoModeEnabled) {
+            isManualMode = !autoModeEnabled;
+            Serial.print("--> Remote control changed mode to: ");
+            Serial.println(isManualMode ? "Manual" : "Auto");
+        }
+    }
+
+    // If in manual mode, check for fan speed and window angle changes
+    if (isManualMode) {
+        // Check for manual fan speed control
+        if (Firebase.RTDB.getInt(&fbdo, "/control/temp/fan_speed")) {
+            int manualFanSpeed = constrain(fbdo.intData(), 0, 255);
+            if (manualFanSpeed != lastFanSpeed) {
+                lastFanSpeed = manualFanSpeed;
+                setFanSpeed(manualFanSpeed);
+                Serial.print("--> Manual fan speed set to: ");
+                Serial.println(manualFanSpeed);
+            }
+        }
+
+        // Check for manual window angle control
+        if (Firebase.RTDB.getInt(&fbdo, "/control/temp/window_angle")) {
+            int manualWindowAngle = constrain(fbdo.intData(), MIN_ANGLE, MAX_ANGLE);
+            if (manualWindowAngle != lastWindowAngle) {
+                lastWindowAngle = manualWindowAngle;
+                moveServoToAngle(manualWindowAngle);
+                Serial.print("--> Manual window angle set to: ");
+                Serial.println(manualWindowAngle);
+            }
+        }
+    }
+}
+
+void runAutoMode() {
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+
+    if (isnan(h) || isnan(t)) {
+        Serial.println(F("Error: Failed to read from DHT sensor!"));
+        return;
+    }
+
+    Serial.println("----------------------------------------");
+    Serial.print("Temperature: ");
+    Serial.print(t, 1);
+    Serial.print("°C | Humidity: ");
+    Serial.print(h, 1);
+    Serial.println("%");
+
+    // Calculate fan speed based on temperature
+    int fanSpeed = 0;
+    if (t >= MIN_TEMP) {
+        fanSpeed = map(t * 10, MIN_TEMP * 10, 30 * 10, 100, 255);
+        fanSpeed = constrain(fanSpeed, 100, 255);
+    }
+
+    // Calculate target servo angle based on temperature
+    int targetServoAngle = 0;
+    if (t >= MIN_TEMP) {
+        targetServoAngle = map(t * 10, MIN_TEMP * 10, MAX_TEMP * 10, MIN_ANGLE, MAX_ANGLE);
+        targetServoAngle = constrain(targetServoAngle, MIN_ANGLE, MAX_ANGLE);
+    }
+
+    Serial.print("Auto Fan Speed: ");
+    Serial.print(fanSpeed);
+    Serial.print(" | Auto Window Angle: ");
+    Serial.println(targetServoAngle);
+
+    // Apply the calculated values
+    setFanSpeed(fanSpeed);
+    moveServoToAngle(targetServoAngle);
+    
+    // Keep track of the last auto values
+    lastFanSpeed = fanSpeed;
+    lastWindowAngle = targetServoAngle;
+
+    // Send data to Firebase
+    sendDataToFirebase(t, h, fanSpeed, targetServoAngle);
+}
+
+void setFanSpeed(int speed) {
+    ledcWrite(FAN_PIN, speed);
+}
+
+void moveServoToAngle(int targetAngle) {
+    if (currentServoAngle == targetAngle) {
+        return; // Already at target
+    }
+    // Simple, direct move. Your smooth movement logic can be swapped back in here if preferred.
+    windowServo.write(targetAngle);
+    currentServoAngle = targetAngle;
+    delay(500); // Give servo time to move
+}
+
+void printCurrentState() {
+    static String lastPrintedState = "";
+    String currentState = "";
+
+    if (isManualMode) {
+        currentState = "State: Manual Mode (Fan: " + String(lastFanSpeed) + ", Window: " + String(lastWindowAngle) + "°)";
+    } else {
+        currentState = "State: Auto Mode";
+    }
+
+    if (currentState != lastPrintedState) {
+        Serial.println(currentState);
+        lastPrintedState = currentState;
     }
 }
 
@@ -105,8 +239,8 @@ void setup_wifi() {
         delay(500);
     }
     digitalWrite(LEDWIFI_PIN, HIGH);
-    Serial.println("\nWiFi connected.");
-    Serial.print("IP Address: ");
+    Serial.println();
+    Serial.print("Connected with IP: ");
     Serial.println(WiFi.localIP());
 
     // Configure time via NTP for timestamps
@@ -119,60 +253,13 @@ void initializeFirebase() {
     config.database_url = DATABASE_URL;
 
     if (Firebase.signUp(&config, &auth, "", "")) {
-        Serial.println("Firebase anonymous signup OK");
+        Serial.println("Firebase signup OK");
         signupOK = true;
     } else {
         Serial.printf("Signup error: %s\n", config.signer.signupError.message.c_str());
     }
     Firebase.begin(&config, &auth);
     Firebase.reconnectWiFi(true);
-}
-
-void controlDevicesAndSendData() {
-    float h = dht.readHumidity();
-    float t = dht.readTemperature();
-
-    if (isnan(h) || isnan(t)) {
-        Serial.println(F("Failed to read from DHT sensor!"));
-        return;
-    }
-
-    Serial.println("----------------------------------------");
-    Serial.print(getFormattedTimestamp());
-    Serial.print(" | Humidity: ");
-    Serial.print(h, 1);
-    Serial.print("% | Temperature: ");
-    Serial.print(t, 1);
-    Serial.println("°C");
-
-    // Calculate fan speed
-    int fanSpeed = 0;
-    if (t >= MIN_TEMP) {
-        fanSpeed = map(t * 10, MIN_TEMP * 10, 30 * 10, 100, 255);
-        fanSpeed = constrain(fanSpeed, 100, 255);
-    }
-
-    // Calculate target servo angle
-    int targetServoAngle = 0;
-    if (t >= MIN_TEMP) {
-        targetServoAngle = map(t * 10, MIN_TEMP * 10, MAX_TEMP * 10, MIN_ANGLE, MAX_ANGLE);
-        targetServoAngle = constrain(targetServoAngle, MIN_ANGLE, MAX_ANGLE);
-    }
-
-    // Move servo to the target angle (if needed)
-    moveServoToAngle(targetServoAngle);
-
-    // Set fan speed
-    ledcWrite(FAN_PIN, fanSpeed);
-
-    // Display current status
-    Serial.print("Fan Speed (PWM): ");
-    Serial.print(fanSpeed);
-    Serial.print(" | Window Angle: ");
-    Serial.println(currentServoAngle);
-
-    // Send all data to Firebase
-    sendDataToFirebase(t, h, fanSpeed, currentServoAngle);
 }
 
 void sendDataToFirebase(float temp, float hum, int fanSpeed, int windowAngle) {
@@ -191,18 +278,20 @@ void sendDataToFirebase(float temp, float hum, int fanSpeed, int windowAngle) {
 
         // 1. Send to a historical log with a unique timestamp
         String log_path = "/temp_humi_logs/" + timestamp;
+        Serial.printf("Sending temp data to log path: %s\n", log_path.c_str());
         if (Firebase.RTDB.setJSON(&fbdo, log_path.c_str(), &json)) {
-            Serial.println("-> Firebase log write SUCCESS");
+            Serial.println("-> Temp Log write SUCCESS");
         } else {
-            Serial.println("-> Firebase log write FAILED: " + fbdo.errorReason());
+            Serial.println("-> Temp Log write FAILED: " + fbdo.errorReason());
         }
 
         // 2. Send to a fixed path for the latest reading
-        String latest_path = "/temp_humi_reading";
+        String latest_path = "/latest_temp_reading";
+        Serial.printf("Updating latest temp reading at: %s\n", latest_path.c_str());
         if (Firebase.RTDB.setJSON(&fbdo, latest_path.c_str(), &json)) {
-            Serial.println("-> Firebase latest reading update SUCCESS");
+            Serial.println("-> Latest temp reading update SUCCESS");
         } else {
-            Serial.println("-> Firebase latest reading update FAILED: " + fbdo.errorReason());
+            Serial.println("-> Latest temp reading update FAILED: " + fbdo.errorReason());
         }
     }
 }
@@ -210,20 +299,9 @@ void sendDataToFirebase(float temp, float hum, int fanSpeed, int windowAngle) {
 String getFormattedTimestamp() {
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        Serial.println("Failed to obtain time");
-        return "1970-01-01_00-00-00";
+        return "1970-01-01 00:00:00";
     }
     char timeStringBuff[50];
     strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d_%H-%M-%S", &timeinfo);
     return String(timeStringBuff);
-}
-
-void moveServoToAngle(int targetAngle) {
-    if (currentServoAngle == targetAngle) {
-        return; // Already at target
-    }
-    // Simple, direct move. Your smooth movement logic can be swapped back in here if preferred.
-    windowServo.write(targetAngle);
-    currentServoAngle = targetAngle;
-    delay(500); // Give servo time to move
 }
