@@ -37,7 +37,7 @@ This Arduino sketch, also running on an ESP32, is responsible for monitoring the
     - **Thresholds**: Monitors water levels against configurable low and high thresholds (fetched from Firebase).
     - **Buzzer**: Activates a buzzer for audible alerts if water levels fall outside the acceptable range, with a "silent mode" option configurable via Firebase.
 
-### 4. 🌡️ Temperature and Humidity Control Module (`temp_humi.ino`)
+### 4. 🌡️ Smart Fan and Window (?) Module (`temp_humi.ino`)
 
 This Arduino sketch, running on an ESP32, manages ambient temperature and humidity for a plant enclosure:
 - **DHT Sensor**: Uses a DHT22 sensor to read temperature and humidity.
