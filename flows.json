@@ -1,0 +1,836 @@
+[
+    {
+        "id": "flow1",
+        "type": "tab",
+        "label": "Smart Plant Dashboard",
+        "disabled": false,
+        "info": "Integrated dashboard for Smart LED, Soil Moisture & Pump, Temp & Humidity, and Water Level Monitoring"
+    },
+    {
+        "id": "led_mode_switch",
+        "type": "ui_switch",
+        "z": "flow1",
+        "name": "LED Auto/Manual",
+        "label": "LED Mode (Auto=ON / Manual=OFF)",
+        "group": "grp_led",
+        "order": 1,
+        "onvalue": true,
+        "offvalue": false,
+        "x": 250,
+        "y": 2040,
+        "wires": [
+            [
+                "led_set_auto_mode"
+            ]
+        ]
+    },
+    {
+        "id": "led_set_auto_mode",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "name": "Write LED Auto Mode",
+        "x": 920,
+        "y": 2020,
+        "wires": []
+    },
+    {
+        "id": "led_brightness_slider",
+        "type": "ui_slider",
+        "z": "flow1",
+        "name": "LED Brightness Slider",
+        "label": "Brightness (%)",
+        "group": "grp_led",
+        "order": 2,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "x": 280,
+        "y": 1920,
+        "wires": [
+            [
+                "led_set_brightness"
+            ]
+        ]
+    },
+    {
+        "id": "led_set_brightness",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "name": "Write LED Brightness",
+        "x": 920,
+        "y": 1900,
+        "wires": []
+    },
+    {
+        "id": "led_latest_on",
+        "type": "rtdb-on",
+        "z": "flow1",
+        "name": "Read LED Data",
+        "path": "/latest_led_reading",
+        "x": 220,
+        "y": 1680,
+        "wires": [
+            [
+                "led_gauge_fn",
+                "led_chart_fn",
+                "led_status_fn"
+            ]
+        ]
+    },
+    {
+        "id": "led_gauge_fn",
+        "type": "function",
+        "z": "flow1",
+        "name": "Extract Brightness",
+        "func": "let v = parseInt(msg.payload?.brightness_percent);\nreturn { payload: isNaN(v)?0:v };",
+        "outputs": 1,
+        "x": 570,
+        "y": 1780,
+        "wires": [
+            [
+                "led_gauge"
+            ]
+        ]
+    },
+    {
+        "id": "led_gauge",
+        "type": "ui_gauge",
+        "z": "flow1",
+        "name": "LED Brightness Gauge",
+        "group": "grp_led",
+        "order": 3,
+        "label": "Brightness (%)",
+        "format": "{{value}} %",
+        "min": 0,
+        "max": 100,
+        "x": 960,
+        "y": 1760,
+        "wires": []
+    },
+    {
+        "id": "led_chart_fn",
+        "type": "function",
+        "z": "flow1",
+        "name": "Extract Lux",
+        "func": "let lux = parseFloat(msg.payload?.lux);\nreturn { payload: isNaN(lux)?0:lux };",
+        "outputs": 1,
+        "x": 590,
+        "y": 1680,
+        "wires": [
+            [
+                "led_chart"
+            ]
+        ]
+    },
+    {
+        "id": "led_chart",
+        "type": "ui_chart",
+        "z": "flow1",
+        "name": "Lux Chart",
+        "group": "grp_led",
+        "order": 4,
+        "label": "Lux",
+        "chartType": "line",
+        "xformat": "HH:mm:ss",
+        "removeOlder": 1,
+        "removeOlderPoints": 100,
+        "removeOlderUnit": "3600",
+        "outputs": 1,
+        "x": 940,
+        "y": 1680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "led_status_fn",
+        "type": "function",
+        "z": "flow1",
+        "name": "Status Text",
+        "func": "let lux = msg.payload?.lux;\nlet b = msg.payload?.brightness_percent;\nreturn { payload: `Lux: ${lux} | Brightness: ${b}%` };",
+        "outputs": 1,
+        "x": 590,
+        "y": 1580,
+        "wires": [
+            [
+                "led_status_text"
+            ]
+        ]
+    },
+    {
+        "id": "led_status_text",
+        "type": "ui_text",
+        "z": "flow1",
+        "group": "grp_led",
+        "order": 5,
+        "name": "LED Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "x": 930,
+        "y": 1580,
+        "wires": []
+    },
+    {
+        "id": "pump_mode_dropdown",
+        "type": "ui_dropdown",
+        "z": "flow1",
+        "name": "Pump Mode",
+        "label": "Pump Mode",
+        "group": "grp_pump",
+        "order": 1,
+        "options": [
+            {
+                "label": "Auto",
+                "value": "auto"
+            },
+            {
+                "label": "Manual",
+                "value": "manual"
+            },
+            {
+                "label": "Schedule",
+                "value": "schedule"
+            }
+        ],
+        "x": 230,
+        "y": 440,
+        "wires": [
+            [
+                "pump_mode_set"
+            ]
+        ]
+    },
+    {
+        "id": "pump_mode_set",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "x": 920,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "pump_manual_switch",
+        "type": "ui_switch",
+        "z": "flow1",
+        "name": "Manual Pump Switch",
+        "label": "Manual Pump (ON/OFF)",
+        "group": "grp_pump",
+        "order": 2,
+        "onvalue": "ON",
+        "offvalue": "OFF",
+        "x": 220,
+        "y": 540,
+        "wires": [
+            [
+                "pump_manual_set"
+            ]
+        ]
+    },
+    {
+        "id": "pump_manual_set",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "x": 920,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_moisture",
+        "type": "mqtt in",
+        "z": "flow1",
+        "name": "Soil Moisture MQTT",
+        "topic": "esp32/soil_moisture",
+        "broker": "mq_local",
+        "inputs": 0,
+        "x": 210,
+        "y": 360,
+        "wires": [
+            [
+                "moisture_gauge_fn",
+                "moisture_chart_fn"
+            ]
+        ]
+    },
+    {
+        "id": "moisture_gauge_fn",
+        "type": "function",
+        "z": "flow1",
+        "name": "Moisture Gauge Fn",
+        "func": "let v=parseInt(msg.payload);\nreturn { payload:isNaN(v)?0:v };",
+        "outputs": 1,
+        "x": 590,
+        "y": 240,
+        "wires": [
+            [
+                "moisture_gauge"
+            ]
+        ]
+    },
+    {
+        "id": "moisture_gauge",
+        "type": "ui_gauge",
+        "z": "flow1",
+        "group": "grp_pump",
+        "order": 3,
+        "label": "Soil Moisture",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 4095,
+        "x": 920,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "moisture_chart_fn",
+        "type": "function",
+        "z": "flow1",
+        "name": "Moisture Chart Fn",
+        "func": "return { payload:parseInt(msg.payload)||0 };",
+        "outputs": 1,
+        "x": 590,
+        "y": 340,
+        "wires": [
+            [
+                "moisture_chart"
+            ]
+        ]
+    },
+    {
+        "id": "moisture_chart",
+        "type": "ui_chart",
+        "z": "flow1",
+        "group": "grp_pump",
+        "order": 4,
+        "label": "Soil Moisture Trend",
+        "chartType": "line",
+        "removeOlder": 1,
+        "removeOlderPoints": 100,
+        "removeOlderUnit": "3600",
+        "outputs": 1,
+        "x": 910,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "mqtt_in_pump_cmd",
+        "type": "mqtt in",
+        "z": "flow1",
+        "topic": "esp32/control_command",
+        "broker": "mq_local",
+        "inputs": 0,
+        "x": 270,
+        "y": 1440,
+        "wires": [
+            [
+                "pump_cmd_text"
+            ]
+        ]
+    },
+    {
+        "id": "pump_cmd_text",
+        "type": "ui_text",
+        "z": "flow1",
+        "group": "grp_pump",
+        "order": 5,
+        "name": "Pump Command Text",
+        "label": "Last Pump Command",
+        "format": "{{msg.payload}}",
+        "x": 880,
+        "y": 1440,
+        "wires": []
+    },
+    {
+        "id": "th_on",
+        "type": "rtdb-on",
+        "z": "flow1",
+        "path": "/temp_humi_reading",
+        "x": 240,
+        "y": 1200,
+        "wires": [
+            [
+                "th_temp_fn",
+                "th_hum_fn",
+                "th_fan_fn",
+                "th_window_fn"
+            ]
+        ]
+    },
+    {
+        "id": "th_temp_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let t=parseFloat(msg.payload?.temperature_C);\nreturn {payload:isNaN(t)?0:t};",
+        "outputs": 1,
+        "x": 560,
+        "y": 1280,
+        "wires": [
+            [
+                "th_temp_gauge",
+                "th_temp_chart"
+            ]
+        ]
+    },
+    {
+        "id": "th_temp_gauge",
+        "type": "ui_gauge",
+        "z": "flow1",
+        "group": "grp_th",
+        "order": 1,
+        "label": "Temperature (°C)",
+        "format": "{{value}} °C",
+        "min": 0,
+        "max": 60,
+        "x": 880,
+        "y": 1280,
+        "wires": []
+    },
+    {
+        "id": "th_temp_chart",
+        "type": "ui_chart",
+        "z": "flow1",
+        "group": "grp_th",
+        "order": 2,
+        "label": "Temperature Trend",
+        "chartType": "line",
+        "outputs": 1,
+        "x": 910,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "th_hum_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let h=parseFloat(msg.payload?.humidity_pct);\nreturn {payload:isNaN(h)?0:h};",
+        "outputs": 1,
+        "x": 560,
+        "y": 1180,
+        "wires": [
+            [
+                "th_hum_gauge",
+                "th_hum_chart"
+            ]
+        ]
+    },
+    {
+        "id": "th_hum_gauge",
+        "type": "ui_gauge",
+        "z": "flow1",
+        "group": "grp_th",
+        "order": 3,
+        "label": "Humidity (%)",
+        "min": 0,
+        "max": 100,
+        "x": 900,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "th_hum_chart",
+        "type": "ui_chart",
+        "z": "flow1",
+        "group": "grp_th",
+        "order": 4,
+        "label": "Humidity Trend",
+        "chartType": "line",
+        "outputs": 1,
+        "x": 920,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "th_fan_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "return {payload:`Fan PWM: ${msg.payload?.fan_speed_pwm}`};",
+        "outputs": 1,
+        "x": 580,
+        "y": 1020,
+        "wires": [
+            [
+                "th_fan_text"
+            ]
+        ]
+    },
+    {
+        "id": "th_fan_text",
+        "type": "ui_text",
+        "z": "flow1",
+        "group": "grp_th",
+        "order": 5,
+        "label": "",
+        "format": "{{msg.payload}}",
+        "x": 930,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "th_window_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let ang=msg.payload?.window_angle_deg;\nlet pct=msg.payload?.window_open_pct;\nreturn {payload:`Window: ${ang}° (${pct}%)`};",
+        "outputs": 1,
+        "x": 580,
+        "y": 1100,
+        "wires": [
+            [
+                "th_window_text"
+            ]
+        ]
+    },
+    {
+        "id": "th_window_text",
+        "type": "ui_text",
+        "z": "flow1",
+        "group": "grp_th",
+        "order": 6,
+        "label": "",
+        "format": "{{msg.payload}}",
+        "x": 910,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "wl_on",
+        "type": "rtdb-on",
+        "z": "flow1",
+        "path": "/latest_water_lvl_reading",
+        "x": 180,
+        "y": 880,
+        "wires": [
+            [
+                "wl_gauge_fn",
+                "wl_chart_fn",
+                "wl_text_fn",
+                "wl_alert_fn"
+            ]
+        ]
+    },
+    {
+        "id": "wl_gauge_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let p=parseFloat(msg.payload?.percentage);\nreturn {payload:isNaN(p)?0:p};",
+        "outputs": 1,
+        "x": 600,
+        "y": 680,
+        "wires": [
+            [
+                "wl_gauge"
+            ]
+        ]
+    },
+    {
+        "id": "wl_gauge",
+        "type": "ui_gauge",
+        "z": "flow1",
+        "group": "grp_wl",
+        "order": 1,
+        "label": "Water Level (%)",
+        "min": 0,
+        "max": 100,
+        "x": 920,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "wl_chart_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let p=parseFloat(msg.payload?.percentage);\nreturn {payload:isNaN(p)?0:p};",
+        "outputs": 1,
+        "x": 580,
+        "y": 760,
+        "wires": [
+            [
+                "wl_chart"
+            ]
+        ]
+    },
+    {
+        "id": "wl_chart",
+        "type": "ui_chart",
+        "z": "flow1",
+        "group": "grp_wl",
+        "order": 2,
+        "label": "Water Level Trend",
+        "chartType": "line",
+        "outputs": 1,
+        "x": 910,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "wl_text_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let d=msg.payload?.distance_cm;\nlet v=msg.payload?.volume_mL;\nreturn {payload:`Distance: ${d} cm | Volume: ${v} mL`};",
+        "outputs": 1,
+        "x": 580,
+        "y": 840,
+        "wires": [
+            [
+                "wl_text"
+            ]
+        ]
+    },
+    {
+        "id": "wl_text",
+        "type": "ui_text",
+        "z": "flow1",
+        "group": "grp_wl",
+        "order": 3,
+        "format": "{{msg.payload}}",
+        "x": 910,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "wl_alert_fn",
+        "type": "function",
+        "z": "flow1",
+        "func": "let pct=parseFloat(msg.payload?.percentage)||0;\nlet low=20,high=90;\nif(pct<low) return {payload:`⚠️ ALERT: Water LOW (${pct}%)`};\nif(pct>high) return {payload:`⚠️ ALERT: Water HIGH (${pct}%)`};\nreturn {payload:\"Water Level Normal\"};",
+        "outputs": 1,
+        "x": 580,
+        "y": 920,
+        "wires": [
+            [
+                "wl_alert_text"
+            ]
+        ]
+    },
+    {
+        "id": "wl_alert_text",
+        "type": "ui_text",
+        "z": "flow1",
+        "group": "grp_wl",
+        "order": 4,
+        "format": "{{msg.payload}}",
+        "x": 910,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "wl_low_input",
+        "type": "ui_numeric",
+        "z": "flow1",
+        "label": "Low Threshold (%)",
+        "group": "grp_wl",
+        "order": 5,
+        "min": 0,
+        "max": 100,
+        "x": 250,
+        "y": 620,
+        "wires": [
+            [
+                "wl_low_set"
+            ]
+        ]
+    },
+    {
+        "id": "wl_low_set",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "x": 920,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "wl_high_input",
+        "type": "ui_numeric",
+        "z": "flow1",
+        "label": "High Threshold (%)",
+        "group": "grp_wl",
+        "order": 6,
+        "min": 0,
+        "max": 100,
+        "x": 290,
+        "y": 1520,
+        "wires": [
+            [
+                "wl_high_set"
+            ]
+        ]
+    },
+    {
+        "id": "wl_high_set",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "x": 900,
+        "y": 1520,
+        "wires": []
+    },
+    {
+        "id": "wl_buzzer_switch",
+        "type": "ui_switch",
+        "z": "flow1",
+        "name": "",
+        "label": "Buzzer Mode",
+        "tooltip": "",
+        "group": "grp_wl",
+        "order": 7,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "decouple": "false",
+        "topic": "",
+        "topicType": "str",
+        "onvalue": 1,
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": 0,
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "animate": true,
+        "className": "",
+        "x": 270,
+        "y": 1360,
+        "wires": [
+            [
+                "wl_buzzer_set"
+            ]
+        ]
+    },
+    {
+        "id": "wl_buzzer_set",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "x": 900,
+        "y": 1360,
+        "wires": []
+    },
+    {
+        "id": "kill_switch",
+        "type": "ui_button",
+        "z": "flow1",
+        "name": "Kill Switch",
+        "group": "grp_alert",
+        "order": 1,
+        "label": "⚠️ EMERGENCY STOP",
+        "color": "red",
+        "x": 230,
+        "y": 2180,
+        "wires": [
+            [
+                "kill_fn"
+            ]
+        ]
+    },
+    {
+        "id": "kill_fn",
+        "type": "function",
+        "z": "flow1",
+        "name": "Kill All Actuators",
+        "func": "// Send safe states\nreturn [\n  {topic:\"esp32/control_command\",payload:\"OFF\"},\n  {firebase:true,path:\"/control/led/brightness_lvl\",payload:0},\n  {firebase:true,path:\"/control/pump_mode/manual_state\",payload:\"OFF\"},\n  {firebase:true,path:\"/control/led/auto_mode\",payload:true},\n  {firebase:true,path:\"/control/water_lvl/buzzer_mode\",payload:0}\n];",
+        "outputs": 1,
+        "x": 620,
+        "y": 2180,
+        "wires": [
+            [
+                "kill_mqtt",
+                "kill_fb"
+            ]
+        ]
+    },
+    {
+        "id": "kill_mqtt",
+        "type": "mqtt out",
+        "z": "flow1",
+        "name": "Kill Pump MQTT",
+        "topic": "esp32/control_command",
+        "broker": "mq_local",
+        "x": 1000,
+        "y": 2120,
+        "wires": []
+    },
+    {
+        "id": "kill_fb",
+        "type": "rtdb-set",
+        "z": "flow1",
+        "x": 1000,
+        "y": 2220,
+        "wires": []
+    },
+    {
+        "id": "grp_led",
+        "type": "ui_group",
+        "name": "🌱 Smart LED",
+        "tab": "tab_main",
+        "order": 1,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "grp_pump",
+        "type": "ui_group",
+        "name": "💧 Soil Pump",
+        "tab": "tab_main",
+        "order": 2,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "mq_local",
+        "type": "mqtt-broker",
+        "name": "Local MQTT",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "node-red-ui",
+        "usetls": false,
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "grp_th",
+        "type": "ui_group",
+        "name": "🌡️ Temp & Humidity",
+        "tab": "tab_main",
+        "order": 3,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "grp_wl",
+        "type": "ui_group",
+        "name": "🚰 Water Level",
+        "tab": "tab_main",
+        "order": 4,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "grp_alert",
+        "type": "ui_group",
+        "name": "⚠️ Alerts & Kill Switch",
+        "tab": "tab_main",
+        "order": 5,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "tab_main",
+        "type": "ui_tab",
+        "name": "Smart Plant Dashboard",
+        "icon": "dashboard",
+        "order": 1
+    },
+    {
+        "id": "1c238f1207c724e7",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-contrib-firebase-admin": "1.1.35"
+        }
+    }
+]
