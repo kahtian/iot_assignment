@@ -34,7 +34,7 @@ bool signupOK = false;
 
 
 // Pins
-const int soilPin = 33;
+const int soilPin = 34;
 
 
 // Time settings
