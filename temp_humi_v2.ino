@@ -11,8 +11,8 @@
 
 // --- WiFi & Firebase Configuration ---
 // IMPORTANT: Replace with your network credentials and Firebase project details
-const char* WIFI_SSID = "B100M-T8";
-const char* WIFI_PASSWORD = "12345678";
+const char* WIFI_SSID = "Wassup";
+const char* WIFI_PASSWORD = "zhengxuan1121";
 #define API_KEY "AIzaSyDJXRY084sI0LWgpClDVLYYIx98oz-R5sc"
 #define DATABASE_URL "https://iott-c526f-default-rtdb.firebaseio.com"
 
@@ -33,17 +33,15 @@ bool signupOK = false;
 bool isManualMode = false;
 int lastFanSpeed = -1;
 int lastWindowAngle = -1;
-unsigned long printStatePrevMillis = 0; // New variable for non-blocking state printing
-float currentTemp = 0.0; // Global variable to store the latest temperature reading
+unsigned long printStatePrevMillis = 0;
+float currentTemp = 25.0; // Initialize to a safe temperature below thresholds
 
 // --- Sensor & Device Pin Configuration ---
 #define DHT_TYPE DHT22
 #define DHT_PIN 21
-// Re-using the old Wi-Fi LED pin for the new status indicator
 #define STATUS_LED_PIN 25
 #define FAN_PIN 5
 #define SERVO_PIN 12
-// New pin for the buzzer actuator
 #define BUZZER_PIN 26
 
 // --- Temperature Thresholds for Alerts ---
@@ -58,11 +56,16 @@ int currentServoAngle = 0;
 const int pwmFreq = 25000;
 const int pwmResolution = 8;
 
+// --- Buzzer State Variables ---
+static unsigned long lastBuzzerStateChange = 0;
+static int buzzerState = 0; // 0 = off, 1 = warm beep, 2 = high beep
+static int beepCount = 0; // for the triple beep pattern
+
 // --- Temperature & Servo Angle Mapping ---
-const float MIN_TEMP = 27.0; // Temperature to start opening window
-const float MAX_TEMP = 32.0; // Temperature for maximum window opening
-const int MIN_ANGLE = 0;    // Minimum servo angle (closed)
-const int MAX_ANGLE = 180;   // Maximum servo angle (fully open)
+const float MIN_TEMP = 27.0;
+const float MAX_TEMP = 32.0;
+const int MIN_ANGLE = 0;
+const int MAX_ANGLE = 180;
 
 // --- Function Prototypes ---
 void setup_wifi();
@@ -74,16 +77,17 @@ void runAutoMode();
 void moveServoToAngle(int targetAngle);
 void setFanSpeed(int speed);
 void printCurrentState();
-void handleAlerts(); // New prototype for the non-blocking alert handler
+void handleAlerts();
+void setBuzzer(bool state);
 
 void setup() {
     Serial.begin(115200);
-    // Pin setup for the new LED and Buzzer
+    
+    // Pin setup for LED and Buzzer
     pinMode(STATUS_LED_PIN, OUTPUT);
     digitalWrite(STATUS_LED_PIN, LOW);
     pinMode(BUZZER_PIN, OUTPUT);
-    digitalWrite(BUZZER_PIN, LOW);
-
+    
     // Setup servo motor
     ESP32PWM::allocateTimer(0);
     ESP32PWM::allocateTimer(1);
@@ -91,7 +95,7 @@ void setup() {
     ESP32PWM::allocateTimer(3);
     windowServo.setPeriodHertz(50);
     windowServo.attach(SERVO_PIN, 500, 2400);
-    windowServo.write(0); // Start with window closed
+    windowServo.write(0);
     currentServoAngle = 0;
     delay(1000);
 
@@ -101,7 +105,7 @@ void setup() {
 
     setup_wifi();
     dht.begin();
-    initializeFirebase(); // Initialize Firebase connection
+    initializeFirebase();
 
     Serial.println("\nSmart Temperature Control Module");
     Serial.println("-----------------------------------------------------------------");
@@ -136,7 +140,6 @@ void checkRemoteControl() {
     // Check for auto_mode flag from Firebase
     if (Firebase.RTDB.getBool(&fbdo, "/control/temp/auto_mode")) {
         bool autoModeEnabled = fbdo.boolData();
-        // In our logic, isManualMode is just the opposite of autoModeEnabled
         if (isManualMode == autoModeEnabled) {
             isManualMode = !autoModeEnabled;
             Serial.print("--> Remote control changed mode to: ");
@@ -222,29 +225,102 @@ void runAutoMode() {
 
 // Function to handle LED and Buzzer alerts based on the global temperature variable
 void handleAlerts() {
+    // Current time for non-blocking timing
+    unsigned long currentMillis = millis();
+
+    // Determine the current buzzer mode based on temperature
+    int newBuzzerState;
     if (currentTemp >= HIGH_TEMP) {
-        // High Temperature: Constant LED and continuous buzzer tone
-        digitalWrite(STATUS_LED_PIN, HIGH);
-        tone(BUZZER_PIN, 1500); // High-pitched, continuous tone
+        newBuzzerState = 2; // High temp mode
     } else if (currentTemp >= WARM_TEMP) {
-        // Warm Temperature: Slow, pulsing LED and a repeating beep
-        if (millis() % 1000 < 500) { // LED on for 500ms, off for 500ms
-            digitalWrite(STATUS_LED_PIN, HIGH);
-        } else {
-            digitalWrite(STATUS_LED_PIN, LOW);
-        }
-        if (millis() % 3000 < 100) { // Short beep for 100ms every 3 seconds
-            tone(BUZZER_PIN, 800);
-        } else {
-            noTone(BUZZER_PIN);
-        }
+        newBuzzerState = 1; // Warm temp mode
     } else {
-        // Normal Temperature: No alert
+        newBuzzerState = 0; // Off mode
+    }
+
+    // Reset the state if the mode changes
+    if (newBuzzerState != buzzerState) {
+        buzzerState = newBuzzerState;
+        lastBuzzerStateChange = currentMillis;
+        noTone(BUZZER_PIN); // Ensure buzzer is off when changing modes
+        beepCount = 0;
+    }
+
+    // Logic for each mode
+    if (buzzerState == 2) { // High Temp (Triple Beep)
+        digitalWrite(STATUS_LED_PIN, HIGH);
+        
+        switch (beepCount) {
+            case 0: // Start first beep
+                if (currentMillis - lastBuzzerStateChange >= 0) {
+                    tone(BUZZER_PIN, 1500);
+                    lastBuzzerStateChange = currentMillis;
+                    beepCount++;
+                }
+                break;
+            case 1: // End first beep, start pause
+                if (currentMillis - lastBuzzerStateChange >= 100) {
+                    noTone(BUZZER_PIN);
+                    lastBuzzerStateChange = currentMillis;
+                    beepCount++;
+                }
+                break;
+            case 2: // Start second beep
+                if (currentMillis - lastBuzzerStateChange >= 100) {
+                    tone(BUZZER_PIN, 1500);
+                    lastBuzzerStateChange = currentMillis;
+                    beepCount++;
+                }
+                break;
+            case 3: // End second beep, start pause
+                if (currentMillis - lastBuzzerStateChange >= 100) {
+                    noTone(BUZZER_PIN);
+                    lastBuzzerStateChange = currentMillis;
+                    beepCount++;
+                }
+                break;
+            case 4: // Start third beep
+                if (currentMillis - lastBuzzerStateChange >= 100) {
+                    tone(BUZZER_PIN, 1500);
+                    lastBuzzerStateChange = currentMillis;
+                    beepCount++;
+                }
+                break;
+            case 5: // End third beep, start long pause
+                if (currentMillis - lastBuzzerStateChange >= 100) {
+                    noTone(BUZZER_PIN);
+                    lastBuzzerStateChange = currentMillis;
+                    beepCount++;
+                }
+                break;
+            case 6: // Long pause before restarting
+                if (currentMillis - lastBuzzerStateChange >= 1500) { // 1.5 seconds wait
+                    beepCount = 0;
+                }
+                break;
+        }
+
+    } else if (buzzerState == 1) { // Warm Temp (Single Beep)
+        digitalWrite(STATUS_LED_PIN, (currentMillis % 1000 < 500) ? HIGH : LOW);
+
+        if (beepCount == 0) {
+            if (currentMillis - lastBuzzerStateChange >= 3000) { // Beep every 3 seconds
+                tone(BUZZER_PIN, 1500);
+                lastBuzzerStateChange = currentMillis;
+                beepCount++;
+            }
+        } else {
+            if (currentMillis - lastBuzzerStateChange >= 100) { // Beep for 100ms
+                noTone(BUZZER_PIN);
+                beepCount = 0; // Reset for next beep
+            }
+        }
+
+    } else { // Off Mode
         digitalWrite(STATUS_LED_PIN, LOW);
         noTone(BUZZER_PIN);
     }
 }
-
 
 void setFanSpeed(int speed) {
     ledcWrite(FAN_PIN, speed);
@@ -254,10 +330,8 @@ void moveServoToAngle(int targetAngle) {
     if (currentServoAngle == targetAngle) {
         return; // Already at target
     }
-    // Simple, direct move. Your smooth movement logic can be swapped back in here if preferred.
     windowServo.write(targetAngle);
     currentServoAngle = targetAngle;
-    // Removed the delay(500)
 }
 
 void printCurrentState() {
@@ -277,7 +351,6 @@ void printCurrentState() {
 }
 
 void setup_wifi() {
-    // The old LED indicator logic has been removed
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
