@@ -1,131 +1,222 @@
 [
     {
-        "id": "flow1",
+        "id": "7bb182ff734b7624",
         "type": "tab",
         "label": "Smart Plant Dashboard",
         "disabled": false,
-        "info": "Integrated dashboard for Smart LED, Soil Moisture & Pump, Temp & Humidity, and Water Level Monitoring"
+        "info": ""
     },
     {
-        "id": "led_mode_switch",
+        "id": "58b12d4c26f3544a",
         "type": "ui_switch",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "LED Auto/Manual",
         "label": "LED Mode (Auto=ON / Manual=OFF)",
         "group": "grp_led",
         "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "",
         "onvalue": true,
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
         "offvalue": false,
-        "x": 250,
-        "y": 2040,
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": true,
+        "className": "",
+        "x": 710,
+        "y": 1980,
         "wires": [
             [
-                "led_set_auto_mode"
+                "d3a6b6824a23ddc1"
             ]
         ]
     },
     {
-        "id": "led_set_auto_mode",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "name": "Write LED Auto Mode",
-        "x": 920,
-        "y": 2020,
-        "wires": []
+        "id": "8856e233ee68680a",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 420,
+        "y": 1980,
+        "wires": [
+            [
+                "58b12d4c26f3544a"
+            ]
+        ]
     },
     {
-        "id": "led_brightness_slider",
+        "id": "1d8bc281814e1c5c",
         "type": "ui_slider",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "LED Brightness Slider",
         "label": "Brightness (%)",
         "group": "grp_led",
         "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "",
         "min": 0,
         "max": 100,
         "step": 1,
-        "x": 280,
-        "y": 1920,
+        "className": "",
+        "x": 620,
+        "y": 1860,
         "wires": [
             [
-                "led_set_brightness"
+                "df9d9e3bc863fe76"
             ]
         ]
     },
     {
-        "id": "led_set_brightness",
-        "type": "rtdb-set",
-        "z": "flow1",
+        "id": "df9d9e3bc863fe76",
+        "type": "function",
+        "z": "7bb182ff734b7624",
+        "name": "Clamp 0–100",
+        "func": "let v=Number(msg.payload);if(isNaN(v))v=0;v=Math.max(0,Math.min(100,Math.round(v)));msg.payload=v;return msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 990,
+        "y": 1860,
+        "wires": [
+            [
+                "f48af06ed8e9d7ab"
+            ]
+        ]
+    },
+    {
+        "id": "f48af06ed8e9d7ab",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
         "name": "Write LED Brightness",
-        "x": 920,
-        "y": 1900,
+        "path": "/control/led/brightness_lvl",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1180,
+        "y": 2160,
         "wires": []
     },
     {
-        "id": "led_latest_on",
-        "type": "rtdb-on",
-        "z": "flow1",
+        "id": "81fe714cea5d2e53",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync Brightness",
+        "path": "/control/led/brightness_lvl",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 210,
+        "y": 1860,
+        "wires": [
+            [
+                "0d97a257e01bc0d4"
+            ]
+        ]
+    },
+    {
+        "id": "0d97a257e01bc0d4",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 420,
+        "y": 1860,
+        "wires": [
+            [
+                "1d8bc281814e1c5c"
+            ]
+        ]
+    },
+    {
+        "id": "7b94ec3a8cb081a6",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
         "name": "Read LED Data",
         "path": "/latest_led_reading",
-        "x": 220,
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 200,
         "y": 1680,
         "wires": [
             [
-                "led_gauge_fn",
-                "led_chart_fn",
-                "led_status_fn"
+                "03378f98a29c0eca",
+                "6984feebdbeb9e29",
+                "9d64ca140578d8c2"
             ]
         ]
     },
     {
-        "id": "led_gauge_fn",
+        "id": "03378f98a29c0eca",
         "type": "function",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Extract Brightness",
-        "func": "let v = parseInt(msg.payload?.brightness_percent);\nreturn { payload: isNaN(v)?0:v };",
+        "func": "let v=parseInt(msg.payload?.brightness_percent);return {payload:isNaN(v)?0:v};",
         "outputs": 1,
-        "x": 570,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 540,
         "y": 1780,
         "wires": [
             [
-                "led_gauge"
+                "2095ea1ee2a34da9"
             ]
         ]
     },
     {
-        "id": "led_gauge",
+        "id": "2095ea1ee2a34da9",
         "type": "ui_gauge",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "LED Brightness Gauge",
         "group": "grp_led",
         "order": 3,
+        "gtype": "gage",
         "label": "Brightness (%)",
         "format": "{{value}} %",
         "min": 0,
         "max": 100,
-        "x": 960,
+        "x": 900,
         "y": 1760,
         "wires": []
     },
     {
-        "id": "led_chart_fn",
+        "id": "6984feebdbeb9e29",
         "type": "function",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Extract Lux",
-        "func": "let lux = parseFloat(msg.payload?.lux);\nreturn { payload: isNaN(lux)?0:lux };",
+        "func": "let lux=parseFloat(msg.payload?.lux);return {payload:isNaN(lux)?0:lux};",
         "outputs": 1,
-        "x": 590,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 540,
         "y": 1680,
         "wires": [
             [
-                "led_chart"
+                "37284f380ee5393b"
             ]
         ]
     },
     {
-        "id": "led_chart",
+        "id": "37284f380ee5393b",
         "type": "ui_chart",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Lux Chart",
         "group": "grp_led",
         "order": 4,
@@ -136,48 +227,53 @@
         "removeOlderPoints": 100,
         "removeOlderUnit": "3600",
         "outputs": 1,
-        "x": 940,
+        "x": 900,
         "y": 1680,
         "wires": [
             []
         ]
     },
     {
-        "id": "led_status_fn",
+        "id": "9d64ca140578d8c2",
         "type": "function",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Status Text",
-        "func": "let lux = msg.payload?.lux;\nlet b = msg.payload?.brightness_percent;\nreturn { payload: `Lux: ${lux} | Brightness: ${b}%` };",
+        "func": "let lux=msg.payload?.lux;let b=msg.payload?.brightness_percent;return {payload:`Lux: ${lux} | Brightness: ${b}%`};",
         "outputs": 1,
-        "x": 590,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 540,
         "y": 1580,
         "wires": [
             [
-                "led_status_text"
+                "5f0974ce92f2e111"
             ]
         ]
     },
     {
-        "id": "led_status_text",
+        "id": "5f0974ce92f2e111",
         "type": "ui_text",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_led",
         "order": 5,
         "name": "LED Status",
         "label": "",
         "format": "{{msg.payload}}",
-        "x": 930,
+        "x": 900,
         "y": 1580,
         "wires": []
     },
     {
-        "id": "pump_mode_dropdown",
+        "id": "631a6c7a57bbc542",
         "type": "ui_dropdown",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Pump Mode",
         "label": "Pump Mode",
         "group": "grp_pump",
         "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
         "options": [
             {
                 "label": "Auto",
@@ -192,574 +288,1430 @@
                 "value": "schedule"
             }
         ],
-        "x": 230,
-        "y": 440,
+        "x": 830,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "31f42ce4edbd14c4",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync Pump Mode",
+        "path": "/control/pump_mode/mode",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 190,
+        "y": 200,
         "wires": [
             [
-                "pump_mode_set"
+                "ac9baeb8013dc0d1"
             ]
         ]
     },
     {
-        "id": "pump_mode_set",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "x": 920,
-        "y": 440,
-        "wires": []
+        "id": "ac9baeb8013dc0d1",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 530,
+        "y": 200,
+        "wires": [
+            [
+                "631a6c7a57bbc542"
+            ]
+        ]
     },
     {
-        "id": "pump_manual_switch",
+        "id": "092a11a2162a6572",
         "type": "ui_switch",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Manual Pump Switch",
         "label": "Manual Pump (ON/OFF)",
         "group": "grp_pump",
         "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "",
         "onvalue": "ON",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
         "offvalue": "OFF",
-        "x": 220,
-        "y": 540,
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "animate": true,
+        "className": "",
+        "x": 760,
+        "y": 2540,
         "wires": [
             [
-                "pump_manual_set"
+                "eb54cefabd613ddd"
             ]
         ]
     },
     {
-        "id": "pump_manual_set",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "x": 920,
-        "y": 540,
+        "id": "eb54cefabd613ddd",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Manual Pump",
+        "path": "/control/pump_mode/manual_state",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1300,
+        "y": 2280,
         "wires": []
     },
     {
-        "id": "mqtt_in_moisture",
+        "id": "9537e310b4f93a3b",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync Manual Pump",
+        "path": "/control/pump_mode/manual_state",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 250,
+        "y": 2720,
+        "wires": [
+            [
+                "122d5801c09dbb8f"
+            ]
+        ]
+    },
+    {
+        "id": "122d5801c09dbb8f",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 2740,
+        "wires": [
+            [
+                "092a11a2162a6572"
+            ]
+        ]
+    },
+    {
+        "id": "49c2deb998cb3398",
         "type": "mqtt in",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Soil Moisture MQTT",
         "topic": "esp32/soil_moisture",
+        "qos": "2",
+        "datatype": "auto-detect",
         "broker": "mq_local",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
         "inputs": 0,
-        "x": 210,
-        "y": 360,
+        "x": 170,
+        "y": 100,
         "wires": [
             [
-                "moisture_gauge_fn",
-                "moisture_chart_fn"
+                "7db9db60879caa70",
+                "14daacfb8245713d"
             ]
         ]
     },
     {
-        "id": "moisture_gauge_fn",
+        "id": "7db9db60879caa70",
         "type": "function",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Moisture Gauge Fn",
-        "func": "let v=parseInt(msg.payload);\nreturn { payload:isNaN(v)?0:v };",
+        "func": "let v=parseInt(msg.payload);return {payload:isNaN(v)?0:v};",
         "outputs": 1,
-        "x": 590,
-        "y": 240,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 510,
+        "y": 80,
         "wires": [
             [
-                "moisture_gauge"
+                "50a29f6517457afa"
             ]
         ]
     },
     {
-        "id": "moisture_gauge",
+        "id": "50a29f6517457afa",
         "type": "ui_gauge",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_pump",
         "order": 3,
         "label": "Soil Moisture",
         "format": "{{value}}",
         "min": 0,
         "max": 4095,
-        "x": 920,
-        "y": 260,
+        "x": 850,
+        "y": 100,
         "wires": []
     },
     {
-        "id": "moisture_chart_fn",
+        "id": "14daacfb8245713d",
         "type": "function",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Moisture Chart Fn",
-        "func": "return { payload:parseInt(msg.payload)||0 };",
+        "func": "return {payload:parseInt(msg.payload)||0};",
         "outputs": 1,
-        "x": 590,
-        "y": 340,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 510,
+        "y": 140,
         "wires": [
             [
-                "moisture_chart"
+                "ae8607e8d0350ea8"
             ]
         ]
     },
     {
-        "id": "moisture_chart",
+        "id": "ae8607e8d0350ea8",
         "type": "ui_chart",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_pump",
         "order": 4,
         "label": "Soil Moisture Trend",
         "chartType": "line",
+        "xformat": "HH:mm:ss",
         "removeOlder": 1,
         "removeOlderPoints": 100,
         "removeOlderUnit": "3600",
         "outputs": 1,
-        "x": 910,
-        "y": 340,
+        "x": 850,
+        "y": 140,
         "wires": [
             []
         ]
     },
     {
-        "id": "mqtt_in_pump_cmd",
+        "id": "6926b08289a00274",
         "type": "mqtt in",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
+        "name": "Pump Command In",
         "topic": "esp32/control_command",
+        "qos": "2",
+        "datatype": "auto-detect",
         "broker": "mq_local",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
         "inputs": 0,
-        "x": 270,
+        "x": 240,
         "y": 1440,
         "wires": [
             [
-                "pump_cmd_text"
+                "c5ac997f9b0a59b2"
             ]
         ]
     },
     {
-        "id": "pump_cmd_text",
+        "id": "c5ac997f9b0a59b2",
         "type": "ui_text",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_pump",
         "order": 5,
         "name": "Pump Command Text",
         "label": "Last Pump Command",
         "format": "{{msg.payload}}",
-        "x": 880,
+        "x": 840,
         "y": 1440,
         "wires": []
     },
     {
-        "id": "th_on",
-        "type": "rtdb-on",
-        "z": "flow1",
-        "path": "/temp_humi_reading",
-        "x": 240,
+        "id": "127733fd24de0d1b",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Temp/Humi Stream",
+        "path": "/latest_temp_reading",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 200,
         "y": 1200,
         "wires": [
             [
-                "th_temp_fn",
-                "th_hum_fn",
-                "th_fan_fn",
-                "th_window_fn"
+                "502e8e046a594157",
+                "1024d50aeb209f4c",
+                "c9d3f40899515074",
+                "87d76bf27c95ddfb"
             ]
         ]
     },
     {
-        "id": "th_temp_fn",
+        "id": "502e8e046a594157",
         "type": "function",
-        "z": "flow1",
-        "func": "let t=parseFloat(msg.payload?.temperature_C);\nreturn {payload:isNaN(t)?0:t};",
+        "z": "7bb182ff734b7624",
+        "name": "Temp",
+        "func": "let t=parseFloat(msg.payload?.temperature_C);return {payload:isNaN(t)?0:t};",
         "outputs": 1,
-        "x": 560,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 520,
         "y": 1280,
         "wires": [
             [
-                "th_temp_gauge",
-                "th_temp_chart"
+                "ee189d0274ddbbcc",
+                "5ca030d925d9b257"
             ]
         ]
     },
     {
-        "id": "th_temp_gauge",
+        "id": "ee189d0274ddbbcc",
         "type": "ui_gauge",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_th",
         "order": 1,
         "label": "Temperature (°C)",
         "format": "{{value}} °C",
         "min": 0,
         "max": 60,
-        "x": 880,
+        "x": 860,
         "y": 1280,
         "wires": []
     },
     {
-        "id": "th_temp_chart",
+        "id": "5ca030d925d9b257",
         "type": "ui_chart",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_th",
         "order": 2,
         "label": "Temperature Trend",
         "chartType": "line",
         "outputs": 1,
-        "x": 910,
+        "x": 880,
         "y": 1220,
         "wires": [
             []
         ]
     },
     {
-        "id": "th_hum_fn",
+        "id": "1024d50aeb209f4c",
         "type": "function",
-        "z": "flow1",
-        "func": "let h=parseFloat(msg.payload?.humidity_pct);\nreturn {payload:isNaN(h)?0:h};",
+        "z": "7bb182ff734b7624",
+        "name": "Humidity",
+        "func": "let h=parseFloat(msg.payload?.humidity_pct);return {payload:isNaN(h)?0:h};",
         "outputs": 1,
-        "x": 560,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 520,
         "y": 1180,
         "wires": [
             [
-                "th_hum_gauge",
-                "th_hum_chart"
+                "b87fceef385d4fd6",
+                "1bfdbc97e0f0dbda"
             ]
         ]
     },
     {
-        "id": "th_hum_gauge",
+        "id": "b87fceef385d4fd6",
         "type": "ui_gauge",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_th",
         "order": 3,
         "label": "Humidity (%)",
         "min": 0,
         "max": 100,
-        "x": 900,
+        "x": 880,
         "y": 1160,
         "wires": []
     },
     {
-        "id": "th_hum_chart",
+        "id": "1bfdbc97e0f0dbda",
         "type": "ui_chart",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_th",
         "order": 4,
         "label": "Humidity Trend",
         "chartType": "line",
         "outputs": 1,
-        "x": 920,
-        "y": 1100,
+        "x": 840,
+        "y": 1120,
         "wires": [
             []
         ]
     },
     {
-        "id": "th_fan_fn",
+        "id": "c9d3f40899515074",
         "type": "function",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
+        "name": "Fan PWM text",
         "func": "return {payload:`Fan PWM: ${msg.payload?.fan_speed_pwm}`};",
         "outputs": 1,
-        "x": 580,
-        "y": 1020,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 540,
+        "y": 1040,
         "wires": [
             [
-                "th_fan_text"
+                "7c38cb14b1a21758"
             ]
         ]
     },
     {
-        "id": "th_fan_text",
+        "id": "7c38cb14b1a21758",
         "type": "ui_text",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_th",
         "order": 5,
         "label": "",
         "format": "{{msg.payload}}",
-        "x": 930,
-        "y": 980,
+        "x": 890,
+        "y": 1020,
         "wires": []
     },
     {
-        "id": "th_window_fn",
+        "id": "87d76bf27c95ddfb",
         "type": "function",
-        "z": "flow1",
-        "func": "let ang=msg.payload?.window_angle_deg;\nlet pct=msg.payload?.window_open_pct;\nreturn {payload:`Window: ${ang}° (${pct}%)`};",
+        "z": "7bb182ff734b7624",
+        "name": "Window text",
+        "func": "let ang=msg.payload?.window_angle_deg;let pct=msg.payload?.window_open_pct;return {payload:`Window: ${ang}° (${pct}%)`};",
         "outputs": 1,
-        "x": 580,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 540,
         "y": 1100,
         "wires": [
             [
-                "th_window_text"
+                "90fdf495950f482b"
             ]
         ]
     },
     {
-        "id": "th_window_text",
+        "id": "90fdf495950f482b",
         "type": "ui_text",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_th",
         "order": 6,
         "label": "",
         "format": "{{msg.payload}}",
-        "x": 910,
-        "y": 1040,
+        "x": 850,
+        "y": 1060,
         "wires": []
     },
     {
-        "id": "wl_on",
-        "type": "rtdb-on",
-        "z": "flow1",
+        "id": "891116235f98d598",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Water Level Stream",
         "path": "/latest_water_lvl_reading",
-        "x": 180,
-        "y": 880,
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 160,
+        "y": 640,
         "wires": [
             [
-                "wl_gauge_fn",
-                "wl_chart_fn",
-                "wl_text_fn",
-                "wl_alert_fn"
+                "e0fba3f2463c5434",
+                "e8a29c6cec176c93",
+                "f4f111092c8f9a96",
+                "fd2161dad88849e6"
             ]
         ]
     },
     {
-        "id": "wl_gauge_fn",
+        "id": "e0fba3f2463c5434",
         "type": "function",
-        "z": "flow1",
-        "func": "let p=parseFloat(msg.payload?.percentage);\nreturn {payload:isNaN(p)?0:p};",
+        "z": "7bb182ff734b7624",
+        "name": "percentage → gauge",
+        "func": "let p=parseFloat(msg.payload?.percentage);return {payload:isNaN(p)?0:p};",
         "outputs": 1,
-        "x": 600,
-        "y": 680,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 490,
+        "y": 560,
         "wires": [
             [
-                "wl_gauge"
+                "1db71c3857049b5d"
             ]
         ]
     },
     {
-        "id": "wl_gauge",
+        "id": "1db71c3857049b5d",
         "type": "ui_gauge",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
+        "name": "",
         "group": "grp_wl",
         "order": 1,
-        "label": "Water Level (%)",
+        "gtype": "gage",
+        "label": "Water Level (ml)",
+        "format": "",
         "min": 0,
-        "max": 100,
-        "x": 920,
-        "y": 660,
+        "max": "600",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "x": 790,
+        "y": 560,
         "wires": []
     },
     {
-        "id": "wl_chart_fn",
+        "id": "e8a29c6cec176c93",
         "type": "function",
-        "z": "flow1",
-        "func": "let p=parseFloat(msg.payload?.percentage);\nreturn {payload:isNaN(p)?0:p};",
+        "z": "7bb182ff734b7624",
+        "name": "percentage → chart",
+        "func": "let p=parseFloat(msg.payload?.percentage);return {payload:isNaN(p)?0:p};",
         "outputs": 1,
-        "x": 580,
-        "y": 760,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 470,
+        "y": 620,
         "wires": [
             [
-                "wl_chart"
+                "247dee6c23113ff7"
             ]
         ]
     },
     {
-        "id": "wl_chart",
+        "id": "247dee6c23113ff7",
         "type": "ui_chart",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
+        "name": "",
         "group": "grp_wl",
         "order": 2,
         "label": "Water Level Trend",
         "chartType": "line",
+        "xformat": "HH:mm:ss",
+        "removeOlder": "1",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
         "outputs": 1,
-        "x": 910,
-        "y": 740,
+        "x": 810,
+        "y": 600,
         "wires": [
             []
         ]
     },
     {
-        "id": "wl_text_fn",
+        "id": "f4f111092c8f9a96",
         "type": "function",
-        "z": "flow1",
-        "func": "let d=msg.payload?.distance_cm;\nlet v=msg.payload?.volume_mL;\nreturn {payload:`Distance: ${d} cm | Volume: ${v} mL`};",
+        "z": "7bb182ff734b7624",
+        "name": "Status text",
+        "func": "let d=msg.payload?.distance_cm;let v=msg.payload?.volume_mL;return {payload:`Distance: ${d} cm | Volume: ${v} mL`};",
         "outputs": 1,
-        "x": 580,
-        "y": 840,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 480,
+        "y": 680,
         "wires": [
             [
-                "wl_text"
+                "796546880d487ce7"
             ]
         ]
     },
     {
-        "id": "wl_text",
+        "id": "796546880d487ce7",
         "type": "ui_text",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_wl",
         "order": 3,
         "format": "{{msg.payload}}",
-        "x": 910,
-        "y": 820,
+        "x": 810,
+        "y": 660,
         "wires": []
     },
     {
-        "id": "wl_alert_fn",
+        "id": "fd2161dad88849e6",
         "type": "function",
-        "z": "flow1",
-        "func": "let pct=parseFloat(msg.payload?.percentage)||0;\nlet low=20,high=90;\nif(pct<low) return {payload:`⚠️ ALERT: Water LOW (${pct}%)`};\nif(pct>high) return {payload:`⚠️ ALERT: Water HIGH (${pct}%)`};\nreturn {payload:\"Water Level Normal\"};",
+        "z": "7bb182ff734b7624",
+        "name": "Alert text",
+        "func": "let pct=parseFloat(msg.payload?.percentage)||0;let low=20,high=90;if(pct<low)return{payload:`⚠️ ALERT: Water LOW (${pct}%)`};if(pct>high)return{payload:`⚠️ ALERT: Water HIGH (${pct}%)`};return{payload:\"Water Level Normal\"};",
         "outputs": 1,
-        "x": 580,
-        "y": 920,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 470,
+        "y": 740,
         "wires": [
             [
-                "wl_alert_text"
+                "5f8d47098f5960e5"
             ]
         ]
     },
     {
-        "id": "wl_alert_text",
+        "id": "5f8d47098f5960e5",
         "type": "ui_text",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "group": "grp_wl",
         "order": 4,
         "format": "{{msg.payload}}",
-        "x": 910,
-        "y": 900,
+        "x": 810,
+        "y": 720,
         "wires": []
     },
     {
-        "id": "wl_low_input",
+        "id": "af6340290fe461f6",
         "type": "ui_numeric",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "label": "Low Threshold (%)",
         "group": "grp_wl",
         "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "",
+        "format": "{{value}}",
         "min": 0,
         "max": 100,
-        "x": 250,
-        "y": 620,
+        "x": 230,
+        "y": 260,
         "wires": [
             [
-                "wl_low_set"
+                "af397f9c8a5249f0"
             ]
         ]
     },
     {
-        "id": "wl_low_set",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "x": 920,
-        "y": 600,
+        "id": "af397f9c8a5249f0",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Low Threshold",
+        "path": "/control/water_lvl/low_lvl_threshold",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 740,
+        "y": 260,
         "wires": []
     },
     {
-        "id": "wl_high_input",
+        "id": "ed6f40f46d3a42fd",
         "type": "ui_numeric",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "label": "High Threshold (%)",
         "group": "grp_wl",
         "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "",
+        "format": "{{value}}",
         "min": 0,
         "max": 100,
-        "x": 290,
+        "x": 230,
         "y": 1520,
         "wires": [
             [
-                "wl_high_set"
+                "d7150a173f6e4f6d"
             ]
         ]
     },
     {
-        "id": "wl_high_set",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "x": 900,
-        "y": 1520,
+        "id": "d7150a173f6e4f6d",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write High Threshold",
+        "path": "/control/water_lvl/high_lvl_threshold",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 580,
+        "y": 1500,
         "wires": []
     },
     {
-        "id": "wl_buzzer_switch",
+        "id": "c77765156d01f94c",
         "type": "ui_switch",
-        "z": "flow1",
-        "name": "",
-        "label": "Buzzer Mode",
-        "tooltip": "",
+        "z": "7bb182ff734b7624",
+        "name": "Buzzer Switch",
+        "label": "Buzzer (ON/OFF)",
         "group": "grp_wl",
-        "order": 7,
-        "width": "",
-        "height": "",
+        "order": 10,
+        "width": 0,
+        "height": 0,
         "passthru": true,
         "decouple": "false",
         "topic": "",
-        "topicType": "str",
-        "onvalue": 1,
-        "onvalueType": "str",
-        "onicon": "",
-        "oncolor": "",
-        "offvalue": 0,
-        "offvalueType": "str",
-        "officon": "",
-        "offcolor": "",
+        "onvalue": true,
+        "onvalueType": "bool",
+        "offvalue": false,
+        "offvalueType": "bool",
         "animate": true,
         "className": "",
-        "x": 270,
-        "y": 1360,
+        "x": 480,
+        "y": 2380,
         "wires": [
             [
-                "wl_buzzer_set"
+                "21cff3b7fb748731"
             ]
         ]
     },
     {
-        "id": "wl_buzzer_set",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "x": 900,
+        "id": "21cff3b7fb748731",
+        "type": "function",
+        "z": "7bb182ff734b7624",
+        "name": "true/false → 1/0",
+        "func": "msg.payload=msg.payload===true?1:0;return msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 680,
+        "y": 2400,
+        "wires": [
+            [
+                "c98d686164502564"
+            ]
+        ]
+    },
+    {
+        "id": "c98d686164502564",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Set Buzzer Mode",
+        "path": "/control/water_lvl/buzzer_mode",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 940,
+        "y": 2300,
+        "wires": []
+    },
+    {
+        "id": "e67b3f79d6b9fb20",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync buzzer_mode",
+        "path": "/control/water_lvl/buzzer_mode",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 100,
+        "y": 2560,
+        "wires": [
+            [
+                "c89ecdf37534e75c",
+                "fbb6d64769d992fc"
+            ]
+        ]
+    },
+    {
+        "id": "c89ecdf37534e75c",
+        "type": "function",
+        "z": "7bb182ff734b7624",
+        "name": "1/0 → true/false",
+        "func": "msg.payload=Number(msg.payload)===1;return msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 360,
+        "y": 2600,
+        "wires": [
+            [
+                "fbb6d64769d992fc"
+            ]
+        ]
+    },
+    {
+        "id": "fbb6d64769d992fc",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 2500,
+        "wires": [
+            [
+                "c77765156d01f94c"
+            ]
+        ]
+    },
+    {
+        "id": "76bc4dc42251bd99",
+        "type": "ui_switch",
+        "z": "7bb182ff734b7624",
+        "name": "Pump Schedule Enabled",
+        "label": "Pump Schedule Enabled",
+        "group": "grp_pump",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "onvalue": true,
+        "onvalueType": "bool",
+        "offvalue": false,
+        "offvalueType": "bool",
+        "x": 690,
+        "y": 320,
+        "wires": [
+            [
+                "ac5a8818d4946783"
+            ]
+        ]
+    },
+    {
+        "id": "ac5a8818d4946783",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Pump Schedule Enabled",
+        "path": "/control/pump_mode/schedule/enabled",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1060,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "a64e09bd849a72b6",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync schedule/enabled",
+        "path": "/control/pump_mode/schedule/enabled",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 190,
+        "y": 320,
+        "wires": [
+            [
+                "e2d30a58d8068236"
+            ]
+        ]
+    },
+    {
+        "id": "e2d30a58d8068236",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 320,
+        "wires": [
+            [
+                "76bc4dc42251bd99"
+            ]
+        ]
+    },
+    {
+        "id": "a89d58a60ba1f677",
+        "type": "ui_numeric",
+        "z": "7bb182ff734b7624",
+        "label": "Start Hour (0-23)",
+        "group": "grp_pump",
+        "order": 7,
+        "passthru": true,
+        "min": 0,
+        "max": 23,
+        "x": 630,
+        "y": 380,
+        "wires": [
+            [
+                "de95d36cfe81c9c6"
+            ]
+        ]
+    },
+    {
+        "id": "de95d36cfe81c9c6",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Start Hour",
+        "path": "/control/pump_mode/schedule/start_hour",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1040,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "b527e1e01f1bee75",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync start_hour",
+        "path": "/control/pump_mode/schedule/start_hour",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 150,
+        "y": 380,
+        "wires": [
+            [
+                "92c3b4aab9308835"
+            ]
+        ]
+    },
+    {
+        "id": "92c3b4aab9308835",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 430,
+        "y": 380,
+        "wires": [
+            [
+                "a89d58a60ba1f677"
+            ]
+        ]
+    },
+    {
+        "id": "8d73f7554dbb10ee",
+        "type": "ui_numeric",
+        "z": "7bb182ff734b7624",
+        "label": "Start Min (0-59)",
+        "group": "grp_pump",
+        "order": 8,
+        "passthru": true,
+        "min": 0,
+        "max": 59,
+        "x": 640,
+        "y": 440,
+        "wires": [
+            [
+                "6d45edd691d88284"
+            ]
+        ]
+    },
+    {
+        "id": "6d45edd691d88284",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Start Min",
+        "path": "/control/pump_mode/schedule/start_min",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1020,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "403d6c616d422a77",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync start_min",
+        "path": "/control/pump_mode/schedule/start_min",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 150,
+        "y": 440,
+        "wires": [
+            [
+                "cfd6c6d76baa0d3d"
+            ]
+        ]
+    },
+    {
+        "id": "cfd6c6d76baa0d3d",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 430,
+        "y": 440,
+        "wires": [
+            [
+                "8d73f7554dbb10ee"
+            ]
+        ]
+    },
+    {
+        "id": "582b917531a72c52",
+        "type": "ui_numeric",
+        "z": "7bb182ff734b7624",
+        "label": "End Hour (0-23)",
+        "group": "grp_pump",
+        "order": 9,
+        "passthru": true,
+        "min": 0,
+        "max": 23,
+        "x": 660,
+        "y": 800,
+        "wires": [
+            [
+                "8d9cf5d65a2310b9"
+            ]
+        ]
+    },
+    {
+        "id": "8d9cf5d65a2310b9",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write End Hour",
+        "path": "/control/pump_mode/schedule/end_hour",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 960,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "466ccd7c1be84c98",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync end_hour",
+        "path": "/control/pump_mode/schedule/end_hour",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 150,
+        "y": 780,
+        "wires": [
+            [
+                "ebc6bc2a301d0688"
+            ]
+        ]
+    },
+    {
+        "id": "ebc6bc2a301d0688",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 430,
+        "y": 800,
+        "wires": [
+            [
+                "582b917531a72c52"
+            ]
+        ]
+    },
+    {
+        "id": "85ad3f40ab23b048",
+        "type": "ui_numeric",
+        "z": "7bb182ff734b7624",
+        "label": "End Min (0-59)",
+        "group": "grp_pump",
+        "order": 10,
+        "passthru": true,
+        "min": 0,
+        "max": 59,
+        "x": 680,
+        "y": 880,
+        "wires": [
+            [
+                "645a6a093d97fa75"
+            ]
+        ]
+    },
+    {
+        "id": "645a6a093d97fa75",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write End Min",
+        "path": "/control/pump_mode/schedule/end_min",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 980,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "8980b0bc34847abc",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync end_min",
+        "path": "/control/pump_mode/schedule/end_min",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 170,
+        "y": 880,
+        "wires": [
+            [
+                "5c09f7d11a2dd164"
+            ]
+        ]
+    },
+    {
+        "id": "5c09f7d11a2dd164",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 450,
+        "y": 880,
+        "wires": [
+            [
+                "85ad3f40ab23b048"
+            ]
+        ]
+    },
+    {
+        "id": "4bea993d99a0736b",
+        "type": "ui_switch",
+        "z": "7bb182ff734b7624",
+        "name": "Temp Auto Mode",
+        "label": "Temp Auto Mode",
+        "group": "grp_th",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "onvalue": true,
+        "onvalueType": "bool",
+        "offvalue": false,
+        "offvalueType": "bool",
+        "x": 770,
+        "y": 500,
+        "wires": [
+            [
+                "0532c05fdb4908ba"
+            ]
+        ]
+    },
+    {
+        "id": "0532c05fdb4908ba",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Temp Auto",
+        "path": "/control/temp/auto_mode",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1060,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "71b1e6a68b4f56f8",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync Temp Auto",
+        "path": "/control/temp/auto_mode",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 130,
+        "y": 500,
+        "wires": [
+            [
+                "35a9c45d80269a4c"
+            ]
+        ]
+    },
+    {
+        "id": "35a9c45d80269a4c",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 490,
+        "y": 500,
+        "wires": [
+            [
+                "4bea993d99a0736b"
+            ]
+        ]
+    },
+    {
+        "id": "b4db1b89eedcfb3a",
+        "type": "ui_slider",
+        "z": "7bb182ff734b7624",
+        "name": "Fan Speed",
+        "label": "Fan Speed (0-255)",
+        "group": "grp_th",
+        "order": 8,
+        "passthru": true,
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "x": 630,
+        "y": 980,
+        "wires": [
+            [
+                "82604694c8a22d6f"
+            ]
+        ]
+    },
+    {
+        "id": "82604694c8a22d6f",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Fan Speed",
+        "path": "/control/temp/fan_speed",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 1020,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "b6b97090d0a7fd6c",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync Fan Speed",
+        "path": "/control/temp/fan_speed",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 110,
+        "y": 980,
+        "wires": [
+            [
+                "d4302f6da5d32cda"
+            ]
+        ]
+    },
+    {
+        "id": "d4302f6da5d32cda",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 310,
+        "y": 980,
+        "wires": [
+            [
+                "b4db1b89eedcfb3a"
+            ]
+        ]
+    },
+    {
+        "id": "e3eddea460e2cdb9",
+        "type": "ui_slider",
+        "z": "7bb182ff734b7624",
+        "name": "Window Angle",
+        "label": "Window Angle (0-180°)",
+        "group": "grp_th",
+        "order": 9,
+        "passthru": true,
+        "min": 0,
+        "max": 180,
+        "step": 1,
+        "x": 700,
+        "y": 1360,
+        "wires": [
+            [
+                "27d80cad925c1b84"
+            ]
+        ]
+    },
+    {
+        "id": "27d80cad925c1b84",
+        "type": "firebase out",
+        "z": "7bb182ff734b7624",
+        "name": "Write Window Angle",
+        "path": "/control/temp/window_angle",
+        "operation": "set",
+        "cred": "3d4483178e8d3fcd",
+        "x": 980,
         "y": 1360,
         "wires": []
     },
     {
-        "id": "kill_switch",
+        "id": "406dac7d290769cf",
+        "type": "firebase in",
+        "z": "7bb182ff734b7624",
+        "name": "Sync Window Angle",
+        "path": "/control/temp/window_angle",
+        "event": "value",
+        "cred": "3d4483178e8d3fcd",
+        "x": 190,
+        "y": 1360,
+        "wires": [
+            [
+                "3aecb22580561780"
+            ]
+        ]
+    },
+    {
+        "id": "3aecb22580561780",
+        "type": "rbe",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 430,
+        "y": 1360,
+        "wires": [
+            [
+                "e3eddea460e2cdb9"
+            ]
+        ]
+    },
+    {
+        "id": "efe34306388f77eb",
         "type": "ui_button",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Kill Switch",
         "group": "grp_alert",
         "order": 1,
+        "width": 0,
+        "height": 0,
         "label": "⚠️ EMERGENCY STOP",
         "color": "red",
-        "x": 230,
+        "className": "",
+        "x": 200,
         "y": 2180,
         "wires": [
             [
-                "kill_fn"
+                "fb8d69d04cdeb5a9"
             ]
         ]
     },
     {
-        "id": "kill_fn",
+        "id": "fb8d69d04cdeb5a9",
         "type": "function",
-        "z": "flow1",
-        "name": "Kill All Actuators",
-        "func": "// Send safe states\nreturn [\n  {topic:\"esp32/control_command\",payload:\"OFF\"},\n  {firebase:true,path:\"/control/led/brightness_lvl\",payload:0},\n  {firebase:true,path:\"/control/pump_mode/manual_state\",payload:\"OFF\"},\n  {firebase:true,path:\"/control/led/auto_mode\",payload:true},\n  {firebase:true,path:\"/control/water_lvl/buzzer_mode\",payload:0}\n];",
-        "outputs": 1,
-        "x": 620,
+        "z": "7bb182ff734b7624",
+        "name": "Safe states",
+        "func": "return [\n  {payload:\"OFF\"},\n  {payload:0},\n  {payload:true},\n  {payload:\"OFF\"},\n  {payload:0}\n];",
+        "outputs": 5,
+        "timeout": 0,
+        "noerr": 0,
+        "x": 430,
         "y": 2180,
         "wires": [
             [
-                "kill_mqtt",
-                "kill_fb"
+                "21c11f797534fc4a"
+            ],
+            [
+                "f48af06ed8e9d7ab"
+            ],
+            [
+                "d3a6b6824a23ddc1"
+            ],
+            [
+                "eb54cefabd613ddd"
+            ],
+            [
+                "c98d686164502564"
             ]
         ]
     },
     {
-        "id": "kill_mqtt",
+        "id": "21c11f797534fc4a",
         "type": "mqtt out",
-        "z": "flow1",
+        "z": "7bb182ff734b7624",
         "name": "Kill Pump MQTT",
         "topic": "esp32/control_command",
+        "qos": "",
+        "retain": "",
         "broker": "mq_local",
-        "x": 1000,
-        "y": 2120,
+        "x": 760,
+        "y": 2100,
         "wires": []
     },
     {
-        "id": "kill_fb",
-        "type": "rtdb-set",
-        "z": "flow1",
-        "x": 1000,
+        "id": "32c65baddbffaf06",
+        "type": "on disconnect",
+        "z": "7bb182ff734b7624",
+        "name": "OD: LED Brightness 0",
+        "path": "/control/led/brightness_lvl",
+        "operation": "set",
+        "value": "0",
+        "cred": "3d4483178e8d3fcd",
+        "x": 210,
+        "y": 2100,
+        "wires": []
+    },
+    {
+        "id": "b66c27a43a7e4a65",
+        "type": "on disconnect",
+        "z": "7bb182ff734b7624",
+        "name": "OD: LED Auto true",
+        "path": "/control/led/auto_mode",
+        "operation": "set",
+        "value": "true",
+        "cred": "3d4483178e8d3fcd",
+        "x": 210,
+        "y": 2140,
+        "wires": []
+    },
+    {
+        "id": "a831b3908ae2cc0c",
+        "type": "on disconnect",
+        "z": "7bb182ff734b7624",
+        "name": "OD: Pump OFF",
+        "path": "/control/pump_mode/manual_state",
+        "operation": "set",
+        "value": "\"OFF\"",
+        "cred": "3d4483178e8d3fcd",
+        "x": 210,
+        "y": 2180,
+        "wires": []
+    },
+    {
+        "id": "6f5125796114eb57",
+        "type": "on disconnect",
+        "z": "7bb182ff734b7624",
+        "name": "OD: Buzzer 0",
+        "path": "/control/water_lvl/buzzer_mode",
+        "operation": "set",
+        "value": "0",
+        "cred": "3d4483178e8d3fcd",
+        "x": 210,
         "y": 2220,
         "wires": []
+    },
+    {
+        "id": "d3a6b6824a23ddc1",
+        "type": "firebase-out",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/auto_mode",
+        "pathType": "msg",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1030,
+        "y": 2200,
+        "wires": []
+    },
+    {
+        "id": "a91aae98e4f3f528",
+        "type": "firebase-in",
+        "z": "7bb182ff734b7624",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/led/auto_mode",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 220,
+        "y": 1980,
+        "wires": [
+            [
+                "8856e233ee68680a"
+            ]
+        ]
     },
     {
         "id": "grp_led",
@@ -818,6 +1770,19 @@
         "width": "6"
     },
     {
+        "id": "3d4483178e8d3fcd",
+        "type": "firebase-config",
+        "name": "Firebase RTDB",
+        "authType": "privateKey",
+        "claims": {},
+        "createUser": false,
+        "status": {
+            "firestore": false,
+            "storage": false
+        },
+        "useClaims": false
+    },
+    {
         "id": "tab_main",
         "type": "ui_tab",
         "name": "Smart Plant Dashboard",
@@ -825,12 +1790,13 @@
         "order": 1
     },
     {
-        "id": "1c238f1207c724e7",
+        "id": "6a51fc4ea1b59c22",
         "type": "global-config",
         "env": [],
         "modules": {
             "node-red-dashboard": "3.6.6",
-            "node-red-contrib-firebase-admin": "1.1.35"
+            "@gogovega/node-red-contrib-firebase-realtime-database": "0.8.0",
+            "@gogovega/firebase-config-node": "0.3.0"
         }
     }
 ]
