@@ -10,6 +10,7 @@
 #include "time.h"
 
 // --- WiFi & Firebase Configuration ---
+// IMPORTANT: Replace with your network credentials and Firebase project details
 const char* WIFI_SSID = "B100M-T8";
 const char* WIFI_PASSWORD = "12345678";
 #define API_KEY "AIzaSyDJXRY084sI0LWgpClDVLYYIx98oz-R5sc"
@@ -32,14 +33,22 @@ bool signupOK = false;
 bool isManualMode = false;
 int lastFanSpeed = -1;
 int lastWindowAngle = -1;
+unsigned long printStatePrevMillis = 0; // New variable for non-blocking state printing
+float currentTemp = 0.0; // Global variable to store the latest temperature reading
 
 // --- Sensor & Device Pin Configuration ---
 #define DHT_TYPE DHT22
 #define DHT_PIN 21
+// Re-using the old Wi-Fi LED pin for the new status indicator
 #define STATUS_LED_PIN 25
-#define BUZZER_PIN 26
 #define FAN_PIN 5
 #define SERVO_PIN 12
+// New pin for the buzzer actuator
+#define BUZZER_PIN 26
+
+// --- Temperature Thresholds for Alerts ---
+const float WARM_TEMP = 29.0;
+const float HIGH_TEMP = 31.0;
 
 DHT dht(DHT_PIN, DHT_TYPE);
 Servo windowServo;
@@ -49,17 +58,13 @@ int currentServoAngle = 0;
 const int pwmFreq = 25000;
 const int pwmResolution = 8;
 
-// --- Temperature Thresholds ---
-// --- For Alerts ---
-const float WARM_TEMP = 29.0;
-const float HIGH_TEMP = 31.0;
-// --- For Servo Angle Mapping ---
-const float MIN_TEMP = 27.0;  
-const float MAX_TEMP = 32.0;  
-const int MIN_ANGLE = 0;    
-const int MAX_ANGLE = 180; 
+// --- Temperature & Servo Angle Mapping ---
+const float MIN_TEMP = 27.0; // Temperature to start opening window
+const float MAX_TEMP = 32.0; // Temperature for maximum window opening
+const int MIN_ANGLE = 0;    // Minimum servo angle (closed)
+const int MAX_ANGLE = 180;   // Maximum servo angle (fully open)
 
-// --- Function  ---
+// --- Function Prototypes ---
 void setup_wifi();
 void initializeFirebase();
 void sendDataToFirebase(float temp, float hum, int fanSpeed, int windowAngle);
@@ -69,11 +74,11 @@ void runAutoMode();
 void moveServoToAngle(int targetAngle);
 void setFanSpeed(int speed);
 void printCurrentState();
-void setTempAlert(float currentTemp);
+void handleAlerts(); // New prototype for the non-blocking alert handler
 
 void setup() {
     Serial.begin(115200);
-    // Setup LED and Buzzer
+    // Pin setup for the new LED and Buzzer
     pinMode(STATUS_LED_PIN, OUTPUT);
     digitalWrite(STATUS_LED_PIN, LOW);
     pinMode(BUZZER_PIN, OUTPUT);
@@ -103,20 +108,26 @@ void setup() {
 }
 
 void loop() {
-    // Check for remote control
-    if (millis() - controlCheckPrevMillis > 2000) {
-        controlCheckPrevMillis = millis();
-        checkRemoteControl();
-    }
-
-    // If manual mode is not active, run auto mode
+    // Read temperature and update data periodically (every 10 seconds)
     if (!isManualMode && Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 10000)) {
         sendDataPrevMillis = millis();
         runAutoMode();
     }
 
-    printCurrentState();
-    delay(1000);
+    // Check for remote control commands periodically
+    if (millis() - controlCheckPrevMillis > 2000) {
+        controlCheckPrevMillis = millis();
+        checkRemoteControl();
+    }
+
+    // Continuously handle LED and buzzer alerts
+    handleAlerts();
+    
+    // Use millis() to print the state without blocking
+    if (millis() - printStatePrevMillis > 1000) {
+        printStatePrevMillis = millis();
+        printCurrentState();
+    }
 }
 
 void checkRemoteControl() {
@@ -125,6 +136,7 @@ void checkRemoteControl() {
     // Check for auto_mode flag from Firebase
     if (Firebase.RTDB.getBool(&fbdo, "/control/temp/auto_mode")) {
         bool autoModeEnabled = fbdo.boolData();
+        // In our logic, isManualMode is just the opposite of autoModeEnabled
         if (isManualMode == autoModeEnabled) {
             isManualMode = !autoModeEnabled;
             Serial.print("--> Remote control changed mode to: ");
@@ -134,6 +146,7 @@ void checkRemoteControl() {
 
     // If in manual mode, check for fan speed and window angle changes
     if (isManualMode) {
+        // Check for manual fan speed control
         if (Firebase.RTDB.getInt(&fbdo, "/control/temp/fan_speed")) {
             int manualFanSpeed = constrain(fbdo.intData(), 0, 255);
             if (manualFanSpeed != lastFanSpeed) {
@@ -144,6 +157,7 @@ void checkRemoteControl() {
             }
         }
 
+        // Check for manual window angle control
         if (Firebase.RTDB.getInt(&fbdo, "/control/temp/window_angle")) {
             int manualWindowAngle = constrain(fbdo.intData(), MIN_ANGLE, MAX_ANGLE);
             if (manualWindowAngle != lastWindowAngle) {
@@ -164,8 +178,9 @@ void runAutoMode() {
         Serial.println(F("Error: Failed to read from DHT sensor!"));
         return;
     }
-
-    setTempAlert(t);
+    
+    // Update the global temperature variable for the alert handler
+    currentTemp = t;
 
     Serial.println("----------------------------------------");
     Serial.print("Temperature: ");
@@ -205,32 +220,29 @@ void runAutoMode() {
     sendDataToFirebase(t, h, fanSpeed, targetServoAngle);
 }
 
-void setTempAlert(float currentTemp) {
-  if (currentTemp >= HIGH_TEMP) {
-    // Pattern for HIGH temperature
-    if (millis() % 200 < 100) {
-      digitalWrite(STATUS_LED_PIN, HIGH);
+// Function to handle LED and Buzzer alerts based on the global temperature variable
+void handleAlerts() {
+    if (currentTemp >= HIGH_TEMP) {
+        // High Temperature: Constant LED and continuous buzzer tone
+        digitalWrite(STATUS_LED_PIN, HIGH);
+        tone(BUZZER_PIN, 1500); // High-pitched, continuous tone
+    } else if (currentTemp >= WARM_TEMP) {
+        // Warm Temperature: Slow, pulsing LED and a repeating beep
+        if (millis() % 1000 < 500) { // LED on for 500ms, off for 500ms
+            digitalWrite(STATUS_LED_PIN, HIGH);
+        } else {
+            digitalWrite(STATUS_LED_PIN, LOW);
+        }
+        if (millis() % 3000 < 100) { // Short beep for 100ms every 3 seconds
+            tone(BUZZER_PIN, 800);
+        } else {
+            noTone(BUZZER_PIN);
+        }
     } else {
-      digitalWrite(STATUS_LED_PIN, LOW);
+        // Normal Temperature: No alert
+        digitalWrite(STATUS_LED_PIN, LOW);
+        noTone(BUZZER_PIN);
     }
-    tone(BUZZER_PIN, 1500);
-  } else if (currentTemp >= WARM_TEMP) {
-    // Pattern for WARM temperature
-    if (millis() % 1000 < 500) { 
-      digitalWrite(STATUS_LED_PIN, HIGH);
-    } else {
-      digitalWrite(STATUS_LED_PIN, LOW);
-    }
-    if (millis() % 3000 < 100) { 
-      tone(BUZZER_PIN, 800);
-    } else {
-      noTone(BUZZER_PIN);
-    }
-  } else {
-    // Normal temperature: No alert
-    digitalWrite(STATUS_LED_PIN, LOW);
-    noTone(BUZZER_PIN);
-  }
 }
 
 
@@ -240,11 +252,12 @@ void setFanSpeed(int speed) {
 
 void moveServoToAngle(int targetAngle) {
     if (currentServoAngle == targetAngle) {
-        return; 
+        return; // Already at target
     }
+    // Simple, direct move. Your smooth movement logic can be swapped back in here if preferred.
     windowServo.write(targetAngle);
     currentServoAngle = targetAngle;
-    delay(500);
+    // Removed the delay(500)
 }
 
 void printCurrentState() {
@@ -264,6 +277,7 @@ void printCurrentState() {
 }
 
 void setup_wifi() {
+    // The old LED indicator logic has been removed
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
@@ -274,6 +288,7 @@ void setup_wifi() {
     Serial.print("Connected with IP: ");
     Serial.println(WiFi.localIP());
 
+    // Configure time via NTP for timestamps
     configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
     Serial.println("Time configured via NTP.");
 }
