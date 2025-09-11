@@ -225,11 +225,10 @@ void runAutoMode() {
 
 // Function to handle LED and Buzzer alerts based on the global temperature variable
 void handleAlerts() {
-    // Current time for non-blocking timing
     unsigned long currentMillis = millis();
 
     // Determine the current buzzer mode based on temperature
-    int newBuzzerState;
+    int newBuzzerState = 0;
     if (currentTemp >= HIGH_TEMP) {
         newBuzzerState = 2; // High temp mode
     } else if (currentTemp >= WARM_TEMP) {
@@ -252,7 +251,7 @@ void handleAlerts() {
         
         switch (beepCount) {
             case 0: // Start first beep
-                if (currentMillis - lastBuzzerStateChange >= 0) {
+                if (currentMillis - lastBuzzerStateChange >= 0) { // This is always true, but allows the state to start immediately
                     tone(BUZZER_PIN, 1500);
                     lastBuzzerStateChange = currentMillis;
                     beepCount++;
