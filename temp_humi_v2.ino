@@ -195,7 +195,7 @@ void runAutoMode() {
     // Calculate fan speed based on temperature
     int fanSpeed = 0;
     if (t >= MIN_TEMP) {
-        fanSpeed = map(t * 10, MIN_TEMP * 10, 30 * 10, 100, 255);
+        fanSpeed = map(t * 10, MIN_TEMP * 10, MAX_TEMP * 10, 100, 255);
         fanSpeed = constrain(fanSpeed, 100, 255);
     }
 
