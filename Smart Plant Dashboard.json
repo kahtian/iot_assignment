@@ -1,0 +1,5339 @@
+[
+    {
+        "id": "0cf4987334f232d5",
+        "type": "tab",
+        "label": "Smart Plant Dashboard",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "0b7369f4a88ac38e",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Clamp 0–100",
+        "func": "let v = parseInt(msg.payload);\nif (isNaN(v)) v = 0;\nif (v < 0) v = 0;\nif (v > 100) v = 100;\nreturn { payload: v };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 2520,
+        "wires": [
+            [
+                "8b225e3fd506f365",
+                "f917499ba271bab4"
+            ]
+        ]
+    },
+    {
+        "id": "21e4201cddd26725",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 370,
+        "y": 2520,
+        "wires": [
+            [
+                "ecb9288ec7914958"
+            ]
+        ]
+    },
+    {
+        "id": "0955ea3fcc8f643a",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Extract Brightness",
+        "func": "return { payload: msg.payload.brightness || 0 };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 2460,
+        "wires": [
+            [
+                "f917499ba271bab4"
+            ]
+        ]
+    },
+    {
+        "id": "bb7022629d5ef16f",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Extract Lux",
+        "func": "let lux = parseFloat(msg.payload) || 0;\nlet now = new Date();\n\nmsg.payload = {\n    x: now.getTime(), \n    y: lux             \n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 2400,
+        "wires": [
+            [
+                "768da97d73e49abc"
+            ]
+        ]
+    },
+    {
+        "id": "e8724a79c736b9d2",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 560,
+        "wires": [
+            [
+                "521aba7f702fa1e5"
+            ]
+        ]
+    },
+    {
+        "id": "8c7a85fcac3ea85a",
+        "type": "mqtt in",
+        "z": "0cf4987334f232d5",
+        "name": "Soil Moisture MQTT",
+        "topic": "esp32/soil_moisture",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "mq_local",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 40,
+        "wires": [
+            [
+                "b1ff47ab2e0d7a3c"
+            ]
+        ]
+    },
+    {
+        "id": "b1ff47ab2e0d7a3c",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Moisture Gauge Fn",
+        "func": "let v = parseInt(msg.payload);\nreturn { payload: isNaN(v) ? 0 : v };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 40,
+        "wires": [
+            [
+                "e24360108515571f"
+            ]
+        ]
+    },
+    {
+        "id": "71e742d9e92ebd66",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Temp",
+        "func": "let t = parseFloat(msg.payload);\nreturn { payload: isNaN(t) ? 0 : t };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 1620,
+        "wires": [
+            [
+                "3414e7920d1234fe"
+            ]
+        ]
+    },
+    {
+        "id": "452073c8ae9f4a1c",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 510,
+        "y": 1160,
+        "wires": [
+            [
+                "152ee8d5717fd2ac"
+            ]
+        ]
+    },
+    {
+        "id": "b2d593a9c75def87",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 380,
+        "wires": [
+            [
+                "d04916e6faa21c8a"
+            ]
+        ]
+    },
+    {
+        "id": "25b3b720c9d6291d",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 440,
+        "wires": [
+            [
+                "1499cad3cd6ea6d5"
+            ]
+        ]
+    },
+    {
+        "id": "1f6d08442ff7af3d",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 500,
+        "wires": [
+            [
+                "851f5204b4d98012"
+            ]
+        ]
+    },
+    {
+        "id": "e48d517d0d1d844b",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 510,
+        "y": 1680,
+        "wires": [
+            [
+                "aa65c3faaea2da12"
+            ]
+        ]
+    },
+    {
+        "id": "40ce86dfab796196",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Safe states",
+        "func": "// Safe states for UI + Firebase\nreturn [\n  { payload: 0 },               // Brightness Slider → 0\n  { payload: false },            // LED Auto/Manual → Auto ON\n  { payload: \"OFF\" },           // Pump Switch → OFF\n  { payload: 0 },           // Buzzer Switch → OFF\n  { payload: \"OFF\" },            // Firebase manual pump\n  { payload: false },            // Temp auto →  false\n  { payload: false },            // Pump schedule enabled →  false\n];\n",
+        "outputs": 6,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 2100,
+        "wires": [
+            [
+                "8b225e3fd506f365"
+            ],
+            [
+                "869ec90793a3b386",
+                "c3e964e42e23e415"
+            ],
+            [
+                "521aba7f702fa1e5"
+            ],
+            [
+                "ba628c8b5015d08c",
+                "152ee8d5717fd2ac"
+            ],
+            [
+                "10f999a114e0e33d"
+            ],
+            [
+                "becc68c36dde7d78",
+                "0b5d00752e915e9b"
+            ]
+        ]
+    },
+    {
+        "id": "30aae6d7b80f9ef3",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 330,
+        "y": 2580,
+        "wires": [
+            [
+                "c3e964e42e23e415"
+            ]
+        ]
+    },
+    {
+        "id": "c1c9dfe01384fa66",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/led/auto_mode",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 160,
+        "y": 2580,
+        "wires": [
+            [
+                "30aae6d7b80f9ef3"
+            ]
+        ]
+    },
+    {
+        "id": "869ec90793a3b386",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/auto_mode",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1160,
+        "y": 2580,
+        "wires": []
+    },
+    {
+        "id": "673feb03aadf70ab",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/water_lvl/low_lvl_threshold",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 980,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "6e5524919c6eb4ee",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/pump_mode/schedule/start_min",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 230,
+        "y": 380,
+        "wires": [
+            [
+                "b2d593a9c75def87"
+            ]
+        ]
+    },
+    {
+        "id": "01831ee87b5bbf35",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/schedule/start_min",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 970,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "b5693c231ae5e35b",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/temp/auto_mode",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 210,
+        "y": 1800,
+        "wires": [
+            [
+                "0b5d00752e915e9b"
+            ]
+        ]
+    },
+    {
+        "id": "becc68c36dde7d78",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/temp/auto_mode",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 950,
+        "y": 1860,
+        "wires": []
+    },
+    {
+        "id": "b029c8137485ecff",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/pump_mode/schedule/end_hour",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 240,
+        "y": 440,
+        "wires": [
+            [
+                "25b3b720c9d6291d"
+            ]
+        ]
+    },
+    {
+        "id": "f393a307cab2f9b3",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/schedule/end_hour",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 970,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "362eb05576d9825a",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/schedule/end_min",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 970,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "ae72d585998a738e",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/pump_mode/schedule/end_min",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 230,
+        "y": 500,
+        "wires": [
+            [
+                "1f6d08442ff7af3d"
+            ]
+        ]
+    },
+    {
+        "id": "95862119e24d10fb",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_temp_reading/temperature_C",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 240,
+        "y": 1620,
+        "wires": [
+            [
+                "71e742d9e92ebd66"
+            ]
+        ]
+    },
+    {
+        "id": "05389e51c02aac27",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/temp/window_angle",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 220,
+        "y": 1680,
+        "wires": [
+            [
+                "e48d517d0d1d844b"
+            ]
+        ]
+    },
+    {
+        "id": "d3d41826577d9d2b",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/temp/window_angle",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 960,
+        "y": 1680,
+        "wires": []
+    },
+    {
+        "id": "fd70d28b32c8a0cf",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/water_lvl/high_lvl_threshold",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 980,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "83064cccaf62b019",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/led/brightness_lvl",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 170,
+        "y": 2520,
+        "wires": [
+            [
+                "21e4201cddd26725"
+            ]
+        ]
+    },
+    {
+        "id": "8b225e3fd506f365",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/brightness_lvl",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1070,
+        "y": 2520,
+        "wires": []
+    },
+    {
+        "id": "10f999a114e0e33d",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/manual_state",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 980,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "859eebc11ea4f10a",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/pump_mode/manual_state",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 220,
+        "y": 560,
+        "wires": [
+            [
+                "e8724a79c736b9d2"
+            ]
+        ]
+    },
+    {
+        "id": "ba628c8b5015d08c",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/water_lvl/buzzer_mode",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 990,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "bb1f69d15bd6967b",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/water_lvl/buzzer_mode",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 230,
+        "y": 1160,
+        "wires": [
+            [
+                "452073c8ae9f4a1c"
+            ]
+        ]
+    },
+    {
+        "id": "1dadc01c2a203abb",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/mode",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 930,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "777d75b264ca6a71",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 2",
+        "func": "msg.payload = msg.payload ? \"Temperature auto mode ON\" : \"Temperature auto mode OFF\"; return msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1800,
+        "wires": [
+            [
+                "fa12d9d7e292f620"
+            ]
+        ]
+    },
+    {
+        "id": "19621762a4b491e3",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 510,
+        "y": 880,
+        "wires": [
+            [
+                "5859b72464eae62d"
+            ]
+        ]
+    },
+    {
+        "id": "4fc660ce84580ebc",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 510,
+        "y": 940,
+        "wires": [
+            [
+                "3214f275363ac881"
+            ]
+        ]
+    },
+    {
+        "id": "01b6daf565dcae9e",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/water_lvl/low_lvl_threshold",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 240,
+        "y": 880,
+        "wires": [
+            [
+                "19621762a4b491e3"
+            ]
+        ]
+    },
+    {
+        "id": "af06d572a7facc81",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/water_lvl/high_lvl_threshold",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 240,
+        "y": 940,
+        "wires": [
+            [
+                "4fc660ce84580ebc"
+            ]
+        ]
+    },
+    {
+        "id": "b86887d9c25fc34e",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "LED Mode",
+        "func": "if (msg.payload === true || msg.payload === \"true\") {\n    return { payload: \"✅ LED Auto Mode Enabled\" };\n} else {\n    return { payload: \"⚠️ LED Auto Mode Disabled\" };\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 2580,
+        "wires": [
+            [
+                "851f10cd9d45ada0"
+            ]
+        ]
+    },
+    {
+        "id": "3246eea995deb6c5",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Kill Switch ",
+        "func": "// Kill Switch Notification Function\nmsg.topic = \"KillSwitch\";\nmsg.payload = \"🚨 Kill Switch Activated!\\n\\nAll systems have been stopped for safety. ENABLED (Safe mode)\";\nmsg.priority = \"high\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 2200,
+        "wires": [
+            [
+                "835aa64f80086516"
+            ]
+        ]
+    },
+    {
+        "id": "66b61635d327cea9",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Pump Mode,Notifications,Dashboard 2 Group Visibility",
+        "func": "// Pump Mode Mapper + Notifications + Dashboard Group Visibility\nlet mode = String(msg.payload || \"\").toLowerCase();\nlet outputs = [null, null, null, null, null];\n\n// Outputs mapping:\n// [0] = manual_state (Firebase-out)\n// [1] = mode (Firebase-out)\n// [2] = schedule_enabled (Firebase-out)\n// [3] = notification (dashboard-toast)\n// [4] = dashboard-control (show/hide groups)\n\n// Correct Group IDs\nconst scheduleGroupId = \"39dacddc1de95b82\";   // Pump Schedule group\nconst switchGroupId   = \"d791a182c3b24495\";   // Manual Switch group\n\n// Default state: hide both groups at startup\nif (!mode) {\n    outputs[4] = {\n        payload: {\n            groups: {\n                hide: [scheduleGroupId, switchGroupId],\n                show: []\n            }\n        }\n    };\n    return outputs;\n}\n\nif (mode === \"auto\") {\n    outputs[0] = { payload: \"OFF\" };\n    outputs[1] = { payload: \"auto\" };\n    outputs[2] = { payload: false };\n    outputs[3] = { payload: \"✅ Pump set to AUTO mode\" };\n    outputs[4] = {\n        payload: {\n            groups: {\n                hide: [scheduleGroupId, switchGroupId],\n                show: []\n            }\n        }\n    };\n}\nelse if (mode === \"manual\") {\n    outputs[0] = { payload: \"OFF\" };\n    outputs[1] = { payload: \"manual\" };\n    outputs[2] = { payload: false };\n    outputs[3] = { payload: \"✅ Pump set to MANUAL mode\" };\n    outputs[4] = {\n        payload: {\n            groups: {\n                hide: [scheduleGroupId],\n                show: [switchGroupId]\n            }\n        }\n    };\n}\nelse if (mode === \"schedule\") {\n    outputs[0] = { payload: \"OFF\" };\n    outputs[1] = { payload: \"schedule\" };\n    outputs[2] = { payload: true };\n    outputs[3] = { payload: \"✅ Pump set to SCHEDULE mode\" };\n    outputs[4] = {\n        payload: {\n            groups: {\n                hide: [switchGroupId],\n                show: [scheduleGroupId]\n            }\n        }\n    };\n}\nelse {\n    outputs[3] = { payload: \"⚠️ Invalid pump mode selected\" };\n    outputs[4] = {\n        payload: {\n            groups: {\n                hide: [scheduleGroupId, switchGroupId],\n                show: []\n            }\n        }\n    };\n}\n\nreturn outputs;\n",
+        "outputs": 6,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 180,
+        "wires": [
+            [
+                "ecf7c72dc2a3bae7"
+            ],
+            [
+                "1dadc01c2a203abb"
+            ],
+            [
+                "65312ac65d2be30e"
+            ],
+            [
+                "6dc515240e9afb0a"
+            ],
+            [
+                "7aee88b3492adde2"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "b15a65f04e760327",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "On/Off",
+        "func": "msg.payload = (msg.payload === \"ON\") ? \"✅ Pump turned ON\" : \"❌ Pump turned OFF\";\nmsg.priority = \"low\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 620,
+        "wires": [
+            [
+                "e1ed26c5783e8869"
+            ]
+        ]
+    },
+    {
+        "id": "24c10e0c4f7681f5",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "0/1",
+        "func": "msg.payload = msg.payload ? \"🔔 Buzzer ON\" : \"🔕 Buzzer OFF\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 1220,
+        "wires": [
+            [
+                "7b56e13c3a90d92b"
+            ]
+        ]
+    },
+    {
+        "id": "ecf7c72dc2a3bae7",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/manual_state",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 960,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "65312ac65d2be30e",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/schedule/enabled",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 970,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "6db1842d09289206",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 470,
+        "y": 320,
+        "wires": [
+            [
+                "7651303a77df7343"
+            ]
+        ]
+    },
+    {
+        "id": "e3b5916746efd522",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/pump_mode/schedule/start_hour",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 240,
+        "y": 320,
+        "wires": [
+            [
+                "6db1842d09289206"
+            ]
+        ]
+    },
+    {
+        "id": "8eaebd42fe20619f",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/pump_mode/schedule/start_hour",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 980,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "6dc515240e9afb0a",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": true,
+        "color": null,
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 670,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9f79a5b0fcf664cd",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "3fb72b979ef39d02",
+        "name": "",
+        "label": "Pump Mode",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "Auto",
+                "value": "auto",
+                "type": "str"
+            },
+            {
+                "label": "Manual",
+                "value": "manual",
+                "type": "str"
+            },
+            {
+                "label": "Schedule",
+                "value": "schedule",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "66b61635d327cea9"
+            ]
+        ]
+    },
+    {
+        "id": "e24360108515571f",
+        "type": "ui-gauge",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "group": "0ae6f29fa3425fbb",
+        "order": 1,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Soil Moisture",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "999",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1000",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1999",
+                "color": "#ffc853",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "2000",
+                "color": "#03fcf8",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4095",
+                "color": "#03fcf8",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "4095",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 870,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5859b72464eae62d",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "8bd173bb5777473a",
+        "name": "",
+        "label": "Low Threshold (%)",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 710,
+        "y": 880,
+        "wires": [
+            [
+                "673feb03aadf70ab"
+            ]
+        ]
+    },
+    {
+        "id": "3214f275363ac881",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "8bd173bb5777473a",
+        "name": "",
+        "label": "High Threshold (%)",
+        "order": 8,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 710,
+        "y": 940,
+        "wires": [
+            [
+                "fd70d28b32c8a0cf"
+            ]
+        ]
+    },
+    {
+        "id": "3414e7920d1234fe",
+        "type": "ui-gauge",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "group": "fd423f325e9187c2",
+        "order": 5,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "6",
+        "height": "6",
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Current Temperature",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°C",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "Cool",
+                "textType": "str"
+            },
+            {
+                "from": "20",
+                "color": "#ffc800",
+                "text": "Normal",
+                "textType": "str"
+            },
+            {
+                "from": "30",
+                "color": "#ea5353",
+                "text": "Hot",
+                "textType": "str"
+            },
+            {
+                "from": "50",
+                "color": "#ea5353",
+                "text": "Very Hot",
+                "textType": "str"
+            }
+        ],
+        "min": 0,
+        "max": "50",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 920,
+        "y": 1620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aa65c3faaea2da12",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "fd423f325e9187c2",
+        "name": "",
+        "label": "Window Angle",
+        "tooltip": "",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "180",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 680,
+        "y": 1680,
+        "wires": [
+            [
+                "d3d41826577d9d2b"
+            ]
+        ]
+    },
+    {
+        "id": "768da97d73e49abc",
+        "type": "ui-chart",
+        "z": "0cf4987334f232d5",
+        "group": "a6414893ce03f128",
+        "name": "",
+        "label": "Light Intensity (Lux)",
+        "order": 6,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "Time",
+        "xAxisProperty": "payload.x",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Light (Lux)",
+        "yAxisProperty": "payload.y",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "1000",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 1030,
+        "y": 2400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f917499ba271bab4",
+        "type": "ui-gauge",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "group": "a6414893ce03f128",
+        "order": 4,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "6",
+        "height": "7",
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Brightness (%)",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ffea00",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "39",
+                "color": "#ffea53",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "40",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "79",
+                "color": "#ffc853",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "80",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "100",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 1020,
+        "y": 2460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ecb9288ec7914958",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "a6414893ce03f128",
+        "name": "",
+        "label": "Brightness  (%)",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 560,
+        "y": 2520,
+        "wires": [
+            [
+                "0b7369f4a88ac38e"
+            ]
+        ]
+    },
+    {
+        "id": "c3e964e42e23e415",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "Auto Mode",
+        "group": "a6414893ce03f128",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 490,
+        "y": 2580,
+        "wires": [
+            [
+                "b86887d9c25fc34e",
+                "869ec90793a3b386"
+            ]
+        ]
+    },
+    {
+        "id": "851f10cd9d45ada0",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#2af901",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 930,
+        "y": 2580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "09f52f3824eba9d2",
+        "type": "ui-button",
+        "z": "0cf4987334f232d5",
+        "group": "a6414893ce03f128",
+        "name": "",
+        "label": "⚠ Kill Switch",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "\"Kill\"",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "red",
+        "textColor": "white",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 2060,
+        "wires": [
+            [
+                "40ce86dfab796196",
+                "3246eea995deb6c5"
+            ]
+        ]
+    },
+    {
+        "id": "835aa64f80086516",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": false,
+        "color": "#fa0000",
+        "displayTime": "5",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 690,
+        "y": 2200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "521aba7f702fa1e5",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "Manual State （ON/OFF）",
+        "group": "d791a182c3b24495",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "ON",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "OFF",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "x": 680,
+        "y": 560,
+        "wires": [
+            [
+                "10f999a114e0e33d",
+                "b15a65f04e760327"
+            ]
+        ]
+    },
+    {
+        "id": "e1ed26c5783e8869",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 1030,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "152ee8d5717fd2ac",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "Buzzer switch (ON/OFF)",
+        "group": "8bd173bb5777473a",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "1",
+        "onvalueType": "num",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "0",
+        "offvalueType": "num",
+        "officon": "",
+        "offcolor": "",
+        "x": 710,
+        "y": 1160,
+        "wires": [
+            [
+                "ba628c8b5015d08c",
+                "24c10e0c4f7681f5"
+            ]
+        ]
+    },
+    {
+        "id": "7b56e13c3a90d92b",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 1050,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fa12d9d7e292f620",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 1050,
+        "y": 1800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0b5d00752e915e9b",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "Fan Auto Switch (On/Off)",
+        "group": "fd423f325e9187c2",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "fan",
+        "oncolor": "green",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "fan",
+        "offcolor": "red",
+        "x": 570,
+        "y": 1800,
+        "wires": [
+            [
+                "777d75b264ca6a71",
+                "becc68c36dde7d78"
+            ]
+        ]
+    },
+    {
+        "id": "7651303a77df7343",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "39dacddc1de95b82",
+        "name": "",
+        "label": "Start Hour",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 630,
+        "y": 320,
+        "wires": [
+            [
+                "8eaebd42fe20619f"
+            ]
+        ]
+    },
+    {
+        "id": "1499cad3cd6ea6d5",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "39dacddc1de95b82",
+        "name": "",
+        "label": "End Hour",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 620,
+        "y": 440,
+        "wires": [
+            [
+                "f393a307cab2f9b3"
+            ]
+        ]
+    },
+    {
+        "id": "d04916e6faa21c8a",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "39dacddc1de95b82",
+        "name": "",
+        "label": "Start Minutes",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 630,
+        "y": 380,
+        "wires": [
+            [
+                "01831ee87b5bbf35"
+            ]
+        ]
+    },
+    {
+        "id": "851f5204b4d98012",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "39dacddc1de95b82",
+        "name": "",
+        "label": "End Minutes",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 630,
+        "y": 500,
+        "wires": [
+            [
+                "362eb05576d9825a"
+            ]
+        ]
+    },
+    {
+        "id": "7aee88b3492adde2",
+        "type": "ui-control",
+        "z": "0cf4987334f232d5",
+        "name": "Pump ui control",
+        "ui": "b27f746ec362eaf7",
+        "events": "all",
+        "x": 440,
+        "y": 260,
+        "wires": [
+            [
+                "7651303a77df7343",
+                "d04916e6faa21c8a",
+                "1499cad3cd6ea6d5",
+                "851f5204b4d98012",
+                "521aba7f702fa1e5"
+            ]
+        ]
+    },
+    {
+        "id": "0c09e79814377ccd",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Window text",
+        "func": "let v = parseFloat(msg.payload);\nlet window = \"Closed\";\n\nif (v > 30) window = \"Open (too hot)\";\nelse if (v < 18) window = \"Closed (too cold)\";\nelse window = \"Auto\";\n\nreturn { payload: \"Window Status: \" + window };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 1560,
+        "wires": [
+            [
+                "699cf6c40292ff0e"
+            ]
+        ]
+    },
+    {
+        "id": "47a3a6d5a41ad7d3",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "percentage → gauge",
+        "func": "let v = parseInt(msg.payload);\nreturn { payload: isNaN(v) ? 0 : v };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 1040,
+        "wires": [
+            [
+                "039f833df9cab7fc"
+            ]
+        ]
+    },
+    {
+        "id": "f1c98bdd600b9cac",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Status text",
+        "func": "let lvl = parseInt(msg.payload, 10);\nlet status = \"Normal\";\n\nif (isNaN(lvl)) {\n    status = \"⚠️ Invalid reading\";\n} else if (lvl < 200) {\n    status = \"🚨 Low Water!\";\n} else if (lvl > 400) {\n    status = \"⚠️ High Water!\";\n} else {\n    status = \"✅ Normal\";\n}\n\nreturn { payload: `Water Level Status: ${status}` };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 1080,
+        "wires": [
+            [
+                "65f7bb7febf449ae"
+            ]
+        ]
+    },
+    {
+        "id": "70ef320fe6b677ee",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Alert text",
+        "func": "let lvl = parseInt(msg.payload);\nlet alert = null;\n\nif (lvl < 20) alert = \"⚠️ Water level too low!\";\nelse if (lvl > 80) alert = \"⚠️ Water level too high!\";\n\nif (alert) {\n  return { payload: alert };\n}\nreturn null;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 1120,
+        "wires": [
+            [
+                "3b19e2f424bfd577"
+            ]
+        ]
+    },
+    {
+        "id": "03947324b3bfd00a",
+        "type": "rbe",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "x": 510,
+        "y": 1500,
+        "wires": [
+            [
+                "aac0bbe8b5821561"
+            ]
+        ]
+    },
+    {
+        "id": "4d5f45a2dea913e1",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/temp/fan_speed",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 200,
+        "y": 1500,
+        "wires": [
+            [
+                "03947324b3bfd00a"
+            ]
+        ]
+    },
+    {
+        "id": "f713d409b14e18c5",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/temp/fan_speed",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 940,
+        "y": 1500,
+        "wires": []
+    },
+    {
+        "id": "039f833df9cab7fc",
+        "type": "ui-gauge",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "group": "8bd173bb5777473a",
+        "order": 4,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "6",
+        "height": "8",
+        "gtype": "gauge-tank",
+        "gstyle": "needle",
+        "title": "Water Level ",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "㎖",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#a8f5ff",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "200",
+                "color": "#55dbec",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "400",
+                "color": "#53b4fd",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "600",
+                "color": "#2397d1",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "600",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 890,
+        "y": 1040,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9f86293c053e1c98",
+        "type": "ui-chart",
+        "z": "0cf4987334f232d5",
+        "group": "8bd173bb5777473a",
+        "name": "Water Volume  Chart",
+        "label": "Water Level Trend",
+        "order": 5,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "Time Stamp",
+        "xAxisProperty": "payload.x",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Volume (㎖)",
+        "yAxisProperty": "payload.y",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "600",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": "3",
+        "showLegend": false,
+        "removeOlder": "2",
+        "removeOlderUnit": "604800",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 920,
+        "y": 1260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3b19e2f424bfd577",
+        "type": "ui-notification",
+        "z": "0cf4987334f232d5",
+        "ui": "b27f746ec362eaf7",
+        "position": "top right",
+        "colorDefault": false,
+        "color": "#fa0000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 910,
+        "y": 1120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aac0bbe8b5821561",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "fd423f325e9187c2",
+        "name": "",
+        "label": "Fan Speed (%)",
+        "tooltip": "",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "255",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 680,
+        "y": 1500,
+        "wires": [
+            [
+                "f713d409b14e18c5"
+            ]
+        ]
+    },
+    {
+        "id": "c13647ff331a4615",
+        "type": "ui-chart",
+        "z": "0cf4987334f232d5",
+        "group": "fd423f325e9187c2",
+        "name": "",
+        "label": "Temperature Trend",
+        "order": 7,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "Time",
+        "xAxisProperty": "payload.x",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Temperature (°C)",
+        "yAxisProperty": "payload.y",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "50",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 910,
+        "y": 1740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65f7bb7febf449ae",
+        "type": "ui-text",
+        "z": "0cf4987334f232d5",
+        "group": "8bd173bb5777473a",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Current Status",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 900,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "17341d3f2608b1df",
+        "type": "ui-text",
+        "z": "0cf4987334f232d5",
+        "group": "8bd173bb5777473a",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Volume (㎖)",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "style": false,
+        "font": "Georgia,Georgia,serif",
+        "fontSize": 16,
+        "color": "#00d0fa",
+        "wrapText": true,
+        "className": "",
+        "value": "",
+        "valueType": "str",
+        "x": 530,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "c1e62354af807987",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_water_lvl_reading/volume_mL",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 250,
+        "y": 1080,
+        "wires": [
+            [
+                "47a3a6d5a41ad7d3",
+                "17341d3f2608b1df",
+                "70ef320fe6b677ee",
+                "f1c98bdd600b9cac"
+            ]
+        ]
+    },
+    {
+        "id": "d00a9a1f41a3011c",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_water_lvl_reading/volume_mL",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 250,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "firebase_in_live",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "Latest Volume",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_water_lvl_reading/volume_mL",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 170,
+        "y": 1260,
+        "wires": [
+            [
+                "fn_append_live"
+            ]
+        ]
+    },
+    {
+        "id": "fn_append_live",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Append Live Point",
+        "func": "let vol = parseFloat(msg.payload);\nlet ts = new Date();\n\nif (!isNaN(vol)) {\n    msg.payload = {\n        x: ts.getTime(),  \n        y: vol\n    };\n    return msg;\n}\nreturn null;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 1260,
+        "wires": [
+            [
+                "9f86293c053e1c98"
+            ]
+        ]
+    },
+    {
+        "id": "ee3a729420314399",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_led_reading/lux",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 160,
+        "y": 2400,
+        "wires": [
+            [
+                "bb7022629d5ef16f"
+            ]
+        ]
+    },
+    {
+        "id": "ef875cf888854145",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_led_reading/brightness_percent",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 210,
+        "y": 2460,
+        "wires": [
+            [
+                "0955ea3fcc8f643a"
+            ]
+        ]
+    },
+    {
+        "id": "2229b504e545684b",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "a6414893ce03f128",
+        "name": "",
+        "label": "Select Schedule:",
+        "tooltip": "",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "Schedule 1",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Schedule 2",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Schedule 3",
+                "value": "3",
+                "type": "str"
+            },
+            {
+                "label": "Schedule 4",
+                "value": "4",
+                "type": "str"
+            },
+            {
+                "label": "Schedule 5",
+                "value": "5",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 150,
+        "y": 2740,
+        "wires": [
+            [
+                "22bbca028245b663"
+            ]
+        ]
+    },
+    {
+        "id": "040ee2c0c83ad291",
+        "type": "ui-control",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "ui": "b27f746ec362eaf7",
+        "events": "all",
+        "x": 480,
+        "y": 2740,
+        "wires": [
+            [
+                "f25ccac52c9a1819"
+            ]
+        ]
+    },
+    {
+        "id": "df71273c893364a3",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "83f65f34f02e0934",
+        "name": "Schedule 1 Day",
+        "label": "Schedule 1 Day",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "Monday",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Tuesday",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Wednesday",
+                "value": "3",
+                "type": "str"
+            },
+            {
+                "label": "Thursday",
+                "value": "4",
+                "type": "str"
+            },
+            {
+                "label": "Friday",
+                "value": "5",
+                "type": "str"
+            },
+            {
+                "label": "Saturday",
+                "value": "6",
+                "type": "str"
+            },
+            {
+                "label": "Sunday",
+                "value": "0",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 760,
+        "y": 2660,
+        "wires": [
+            [
+                "797a8acd807e4aff"
+            ]
+        ]
+    },
+    {
+        "id": "49e5855aeeacf111",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "db2975e674e92310",
+        "name": "Schedule 2 Day",
+        "label": "Schedule 2 Day",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "Monday",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Tuesday",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Wednesday",
+                "value": "3",
+                "type": "str"
+            },
+            {
+                "label": "Thursday",
+                "value": "4",
+                "type": "str"
+            },
+            {
+                "label": "Friday",
+                "value": "5",
+                "type": "str"
+            },
+            {
+                "label": "Saturday",
+                "value": "6",
+                "type": "str"
+            },
+            {
+                "label": "Sunday",
+                "value": "0",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 760,
+        "y": 2700,
+        "wires": [
+            [
+                "a15988e72f1c673f"
+            ]
+        ]
+    },
+    {
+        "id": "f25ccac52c9a1819",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "87c5e5d3197c6a39",
+        "name": "Schedule 3 Day",
+        "label": "Schedule 3 Day",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "Monday",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Tuesday",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Wednesday",
+                "value": "3",
+                "type": "str"
+            },
+            {
+                "label": "Thursday",
+                "value": "4",
+                "type": "str"
+            },
+            {
+                "label": "Friday",
+                "value": "5",
+                "type": "str"
+            },
+            {
+                "label": "Saturday",
+                "value": "6",
+                "type": "str"
+            },
+            {
+                "label": "Sunday",
+                "value": "0",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 760,
+        "y": 2740,
+        "wires": [
+            [
+                "b8196aed4b506d2e"
+            ]
+        ]
+    },
+    {
+        "id": "13807b4abf405fa9",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "15ec25ca89fb9bca",
+        "name": "Schedule 4 Day",
+        "label": "Schedule 4 Day",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "Monday",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Tuesday",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Wednesday",
+                "value": "3",
+                "type": "str"
+            },
+            {
+                "label": "Thursday",
+                "value": "4",
+                "type": "str"
+            },
+            {
+                "label": "Friday",
+                "value": "5",
+                "type": "str"
+            },
+            {
+                "label": "Saturday",
+                "value": "6",
+                "type": "str"
+            },
+            {
+                "label": "Sunday",
+                "value": "0",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 760,
+        "y": 2780,
+        "wires": [
+            [
+                "8fea58d68604cfee"
+            ]
+        ]
+    },
+    {
+        "id": "7103f8ef92913d3d",
+        "type": "ui-dropdown",
+        "z": "0cf4987334f232d5",
+        "group": "0ab3157e42b6ce6d",
+        "name": "Schedule 5 Day",
+        "label": "Schedule 5 Day",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "Monday",
+                "value": "1",
+                "type": "str"
+            },
+            {
+                "label": "Tuesday",
+                "value": "2",
+                "type": "str"
+            },
+            {
+                "label": "Wednesday",
+                "value": "3",
+                "type": "str"
+            },
+            {
+                "label": "Thursday",
+                "value": "4",
+                "type": "str"
+            },
+            {
+                "label": "Friday",
+                "value": "5",
+                "type": "str"
+            },
+            {
+                "label": "Saturday",
+                "value": "6",
+                "type": "str"
+            },
+            {
+                "label": "Sunday",
+                "value": "0",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 760,
+        "y": 2820,
+        "wires": [
+            [
+                "343ba6d93871c5f9"
+            ]
+        ]
+    },
+    {
+        "id": "22bbca028245b663",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "schedule",
+        "func": "// Schedule Group Visibility Controller (one message per group)\n\n// Input: msg.payload from \"Select Schedule\" dropdown (string or array)\nlet selected = msg.payload;\n\n// Normalize payload into array\nif (!Array.isArray(selected)) {\n    selected = [selected];\n}\n\n// Map schedules to their ui-group IDs\nconst groupMap = {\n    \"1\": \"83f65f34f02e0934\", // Schedule LED 1\n    \"2\": \"db2975e674e92310\", // Schedule LED 2\n    \"3\": \"87c5e5d3197c6a39\", // Schedule LED 3\n    \"4\": \"15ec25ca89fb9bca\", // Schedule LED 4\n    \"5\": \"0ab3157e42b6ce6d\"  // Schedule LED 5\n};\n\nlet outputs = [];\n\n// For each group, send an individual msg\nfor (let key in groupMap) {\n    let groupId = groupMap[key];\n    if (selected.includes(key)) {\n        // Show this group\n        outputs.push({\n            payload: {\n                groups: { show: [groupId] }\n            }\n        });\n    } else {\n        // Hide this group\n        outputs.push({\n            payload: {\n                groups: { hide: [groupId] }\n            }\n        });\n    }\n}\n\n// Return as an array of messages (sent one by one by Node-RED)\nreturn [outputs];\n",
+        "outputs": 5,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 2740,
+        "wires": [
+            [
+                "ea402e96b1fc8d68"
+            ],
+            [
+                "15ad9288d1e0f8a4"
+            ],
+            [
+                "040ee2c0c83ad291"
+            ],
+            [
+                "1fd83bbc42913405"
+            ],
+            [
+                "f408e1982da1010d"
+            ]
+        ]
+    },
+    {
+        "id": "797a8acd807e4aff",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 3",
+        "func": "// Convert selected days into a stringified array for Firebase\nlet selected = msg.payload;\n\n// Normalize into array\nif (!Array.isArray(selected)) {\n    selected = [selected];\n}\n\n// Convert all values to integers (so \"3\" → 3)\nlet result = selected.map(v => parseInt(v));\n\n// Sort (optional, so it’s always in ascending order)\nresult.sort((a, b) => a - b);\n\n// Convert back into string like \"[3,4]\"\nmsg.payload = JSON.stringify(result);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 2660,
+        "wires": [
+            [
+                "2d2072456c56a68e"
+            ]
+        ]
+    },
+    {
+        "id": "a15988e72f1c673f",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 5",
+        "func": "// Convert selected days into a stringified array for Firebase\nlet selected = msg.payload;\n\n// Normalize into array\nif (!Array.isArray(selected)) {\n    selected = [selected];\n}\n\n// Convert all values to integers (so \"3\" → 3)\nlet result = selected.map(v => parseInt(v));\n\n// Sort (optional, so it’s always in ascending order)\nresult.sort((a, b) => a - b);\n\n// Convert back into string like \"[3,4]\"\nmsg.payload = JSON.stringify(result);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 2700,
+        "wires": [
+            [
+                "2d691f1bfba54885"
+            ]
+        ]
+    },
+    {
+        "id": "b8196aed4b506d2e",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 6",
+        "func": "// Convert selected days into a stringified array for Firebase\nlet selected = msg.payload;\n\n// Normalize into array\nif (!Array.isArray(selected)) {\n    selected = [selected];\n}\n\n// Convert all values to integers (so \"3\" → 3)\nlet result = selected.map(v => parseInt(v));\n\n// Sort (optional, so it’s always in ascending order)\nresult.sort((a, b) => a - b);\n\n// Convert back into string like \"[3,4]\"\nmsg.payload = JSON.stringify(result);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 2740,
+        "wires": [
+            [
+                "071b01d047731d0b"
+            ]
+        ]
+    },
+    {
+        "id": "8fea58d68604cfee",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 7",
+        "func": "// Convert selected days into a stringified array for Firebase\nlet selected = msg.payload;\n\n// Normalize into array\nif (!Array.isArray(selected)) {\n    selected = [selected];\n}\n\n// Convert all values to integers (so \"3\" → 3)\nlet result = selected.map(v => parseInt(v));\n\n// Sort (optional, so it’s always in ascending order)\nresult.sort((a, b) => a - b);\n\n// Convert back into string like \"[3,4]\"\nmsg.payload = JSON.stringify(result);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 2780,
+        "wires": [
+            [
+                "9786c5479755d64c"
+            ]
+        ]
+    },
+    {
+        "id": "343ba6d93871c5f9",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 8",
+        "func": "// Convert selected days into a stringified array for Firebase\nlet selected = msg.payload;\n\n// Normalize into array\nif (!Array.isArray(selected)) {\n    selected = [selected];\n}\n\n// Convert all values to integers (so \"3\" → 3)\nlet result = selected.map(v => parseInt(v));\n\n// Sort (optional, so it’s always in ascending order)\nresult.sort((a, b) => a - b);\n\n// Convert back into string like \"[3,4]\"\nmsg.payload = JSON.stringify(result);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 2820,
+        "wires": [
+            [
+                "ecd43dd3db222d50"
+            ]
+        ]
+    },
+    {
+        "id": "2d2072456c56a68e",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_1/days",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1210,
+        "y": 2660,
+        "wires": []
+    },
+    {
+        "id": "2d691f1bfba54885",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_2/days",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1210,
+        "y": 2700,
+        "wires": []
+    },
+    {
+        "id": "071b01d047731d0b",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_3/days",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1210,
+        "y": 2740,
+        "wires": []
+    },
+    {
+        "id": "9786c5479755d64c",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_4/days",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1210,
+        "y": 2780,
+        "wires": []
+    },
+    {
+        "id": "ecd43dd3db222d50",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_5/days",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1210,
+        "y": 2820,
+        "wires": []
+    },
+    {
+        "id": "ea402e96b1fc8d68",
+        "type": "ui-control",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "ui": "b27f746ec362eaf7",
+        "events": "all",
+        "x": 480,
+        "y": 2660,
+        "wires": [
+            [
+                "df71273c893364a3"
+            ]
+        ]
+    },
+    {
+        "id": "1fd83bbc42913405",
+        "type": "ui-control",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "ui": "b27f746ec362eaf7",
+        "events": "all",
+        "x": 480,
+        "y": 2780,
+        "wires": [
+            [
+                "13807b4abf405fa9"
+            ]
+        ]
+    },
+    {
+        "id": "f408e1982da1010d",
+        "type": "ui-control",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "ui": "b27f746ec362eaf7",
+        "events": "all",
+        "x": 480,
+        "y": 2820,
+        "wires": [
+            [
+                "7103f8ef92913d3d"
+            ]
+        ]
+    },
+    {
+        "id": "15ad9288d1e0f8a4",
+        "type": "ui-control",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "ui": "b27f746ec362eaf7",
+        "events": "all",
+        "x": 480,
+        "y": 2700,
+        "wires": [
+            [
+                "49e5855aeeacf111"
+            ]
+        ]
+    },
+    {
+        "id": "4c207d542cd6b15b",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "On/Off",
+        "group": "db2975e674e92310",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 1030,
+        "y": 2920,
+        "wires": [
+            [
+                "c226e3446cca533f"
+            ]
+        ]
+    },
+    {
+        "id": "dff5de1bdcf2b034",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "On/Off",
+        "group": "87c5e5d3197c6a39",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 1030,
+        "y": 2960,
+        "wires": [
+            [
+                "3c7e479e2aa4b355"
+            ]
+        ]
+    },
+    {
+        "id": "a2ade5b2e17a1567",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "On/Off",
+        "group": "15ec25ca89fb9bca",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 1030,
+        "y": 3000,
+        "wires": [
+            [
+                "74b8b130352a3c3c"
+            ]
+        ]
+    },
+    {
+        "id": "74acaa6bd72a5b90",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "On/Off",
+        "group": "0ab3157e42b6ce6d",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 1030,
+        "y": 3040,
+        "wires": [
+            [
+                "e37aab9fd1bb2b8b"
+            ]
+        ]
+    },
+    {
+        "id": "04065b8300184845",
+        "type": "ui-switch",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "label": "On/Off",
+        "group": "83f65f34f02e0934",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 1030,
+        "y": 2880,
+        "wires": [
+            [
+                "d303ef34e1d5384a"
+            ]
+        ]
+    },
+    {
+        "id": "d303ef34e1d5384a",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_1/enabled",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1360,
+        "y": 2880,
+        "wires": []
+    },
+    {
+        "id": "c226e3446cca533f",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_2/enabled",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1360,
+        "y": 2920,
+        "wires": []
+    },
+    {
+        "id": "3c7e479e2aa4b355",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_3/enabled",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1360,
+        "y": 2960,
+        "wires": []
+    },
+    {
+        "id": "74b8b130352a3c3c",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_4/enabled",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1360,
+        "y": 3000,
+        "wires": []
+    },
+    {
+        "id": "e37aab9fd1bb2b8b",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_5/enabled",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1360,
+        "y": 3040,
+        "wires": []
+    },
+    {
+        "id": "5df711555c795fb1",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "83f65f34f02e0934",
+        "name": "",
+        "label": "Brightness (%)",
+        "tooltip": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 1040,
+        "y": 3100,
+        "wires": [
+            [
+                "76d4f4d24ae292bd"
+            ]
+        ]
+    },
+    {
+        "id": "76d4f4d24ae292bd",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_1/brightness",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1370,
+        "y": 3100,
+        "wires": []
+    },
+    {
+        "id": "0b22089d91b284f4",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "db2975e674e92310",
+        "name": "",
+        "label": "Brightness (%)",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 1040,
+        "y": 3140,
+        "wires": [
+            [
+                "45369677734639e6"
+            ]
+        ]
+    },
+    {
+        "id": "39336d0836887050",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "87c5e5d3197c6a39",
+        "name": "",
+        "label": "Brightness (%)",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 1040,
+        "y": 3180,
+        "wires": [
+            [
+                "9878a867fa5fbf7d"
+            ]
+        ]
+    },
+    {
+        "id": "eceb5a69891b9e76",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "15ec25ca89fb9bca",
+        "name": "",
+        "label": "Brightness (%)",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 1040,
+        "y": 3220,
+        "wires": [
+            [
+                "3e6c7c26650ca959"
+            ]
+        ]
+    },
+    {
+        "id": "bfe5cd3fdcc2f1ce",
+        "type": "ui-slider",
+        "z": "0cf4987334f232d5",
+        "group": "0ab3157e42b6ce6d",
+        "name": "",
+        "label": "Brightness (%)",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 1040,
+        "y": 3260,
+        "wires": [
+            [
+                "f7a4ad6d888a4c6d"
+            ]
+        ]
+    },
+    {
+        "id": "45369677734639e6",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_2/brightness",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1370,
+        "y": 3140,
+        "wires": []
+    },
+    {
+        "id": "9878a867fa5fbf7d",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_3/brightness",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1370,
+        "y": 3180,
+        "wires": []
+    },
+    {
+        "id": "3e6c7c26650ca959",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_4/brightness",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1370,
+        "y": 3220,
+        "wires": []
+    },
+    {
+        "id": "f7a4ad6d888a4c6d",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_5/brightness",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 1370,
+        "y": 3260,
+        "wires": []
+    },
+    {
+        "id": "1060205b1501c4d3",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 10",
+        "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_2/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_2/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 3220,
+        "wires": [
+            [
+                "6a38c5d55d0eea21"
+            ],
+            [
+                "7378b157a36f8ac4"
+            ]
+        ]
+    },
+    {
+        "id": "6a38c5d55d0eea21",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_2/start_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 720,
+        "y": 3160,
+        "wires": []
+    },
+    {
+        "id": "7378b157a36f8ac4",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_2/end_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 710,
+        "y": 3280,
+        "wires": []
+    },
+    {
+        "id": "11a663c8ac497c17",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_3/start_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 700,
+        "y": 3440,
+        "wires": []
+    },
+    {
+        "id": "44a719e01563b27b",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_3/end_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 690,
+        "y": 3560,
+        "wires": []
+    },
+    {
+        "id": "95a6d0b7d402cc5f",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_4/end_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 700,
+        "y": 3800,
+        "wires": []
+    },
+    {
+        "id": "5a2a29c4b1399ffc",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_4/start_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 710,
+        "y": 3720,
+        "wires": []
+    },
+    {
+        "id": "dd0d7954c0e9447d",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_5/start_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 710,
+        "y": 3960,
+        "wires": []
+    },
+    {
+        "id": "7a28f00f88e3321e",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_5/end_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 700,
+        "y": 4040,
+        "wires": []
+    },
+    {
+        "id": "feaa5bec92ca5e7e",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "83f65f34f02e0934",
+        "name": "",
+        "label": "Start Hour",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "start_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 2900,
+        "wires": [
+            [
+                "c5ee612ce3af6112"
+            ]
+        ]
+    },
+    {
+        "id": "b5fd60e70fb93ace",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "83f65f34f02e0934",
+        "name": "",
+        "label": "End Hour",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "topic": "end_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 200,
+        "y": 3020,
+        "wires": [
+            [
+                "c5ee612ce3af6112"
+            ]
+        ]
+    },
+    {
+        "id": "f17987dc6648e77c",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "83f65f34f02e0934",
+        "name": "",
+        "label": "Start Minutes",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "topic": "start_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 2960,
+        "wires": [
+            [
+                "c5ee612ce3af6112"
+            ]
+        ]
+    },
+    {
+        "id": "c777c789cbee74a9",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "83f65f34f02e0934",
+        "name": "",
+        "label": "End Minutes",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "topic": "end_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 3080,
+        "wires": [
+            [
+                "c5ee612ce3af6112"
+            ]
+        ]
+    },
+    {
+        "id": "c5ee612ce3af6112",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 4",
+        "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_1/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_1/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 3000,
+        "wires": [
+            [
+                "4caf1efb9c0cdaf1"
+            ],
+            [
+                "304584e2e80ef249"
+            ]
+        ]
+    },
+    {
+        "id": "4caf1efb9c0cdaf1",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_1/start_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 730,
+        "y": 2980,
+        "wires": []
+    },
+    {
+        "id": "304584e2e80ef249",
+        "type": "firebase-out",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "database": "3d4483178e8d3fcd",
+        "path": "/control/led/schedules/schedule_1/end_time",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 720,
+        "y": 3040,
+        "wires": []
+    },
+    {
+        "id": "6e741ac5bc076ef8",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "db2975e674e92310",
+        "name": "",
+        "label": "Start Hour",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "start_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 3140,
+        "wires": [
+            [
+                "1060205b1501c4d3"
+            ]
+        ]
+    },
+    {
+        "id": "17d824e4705b5078",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "db2975e674e92310",
+        "name": "",
+        "label": "End Hour",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "topic": "end_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 200,
+        "y": 3260,
+        "wires": [
+            [
+                "1060205b1501c4d3"
+            ]
+        ]
+    },
+    {
+        "id": "97b3b0aa3e293f00",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "db2975e674e92310",
+        "name": "",
+        "label": "Start Minutes",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "topic": "start_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 3200,
+        "wires": [
+            [
+                "1060205b1501c4d3"
+            ]
+        ]
+    },
+    {
+        "id": "96d6c92da45fabb6",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "db2975e674e92310",
+        "name": "",
+        "label": "End Minutes",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "topic": "end_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 3320,
+        "wires": [
+            [
+                "1060205b1501c4d3"
+            ]
+        ]
+    },
+    {
+        "id": "0b70c60293a1fb8c",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 9",
+        "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_3/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_3/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 3500,
+        "wires": [
+            [
+                "11a663c8ac497c17"
+            ],
+            [
+                "44a719e01563b27b"
+            ]
+        ]
+    },
+    {
+        "id": "28a072d65cdc8df5",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "87c5e5d3197c6a39",
+        "name": "",
+        "label": "Start Hour",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "start_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 220,
+        "y": 3420,
+        "wires": [
+            [
+                "0b70c60293a1fb8c"
+            ]
+        ]
+    },
+    {
+        "id": "34ae564bc6d7c473",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "87c5e5d3197c6a39",
+        "name": "",
+        "label": "End Hour",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "topic": "end_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 210,
+        "y": 3540,
+        "wires": [
+            [
+                "0b70c60293a1fb8c"
+            ]
+        ]
+    },
+    {
+        "id": "3560581c24c0fd57",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "87c5e5d3197c6a39",
+        "name": "",
+        "label": "Start Minutes",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "topic": "start_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 220,
+        "y": 3480,
+        "wires": [
+            [
+                "0b70c60293a1fb8c"
+            ]
+        ]
+    },
+    {
+        "id": "73a3f00fad51503e",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "87c5e5d3197c6a39",
+        "name": "",
+        "label": "End Minutes",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "topic": "end_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 220,
+        "y": 3600,
+        "wires": [
+            [
+                "0b70c60293a1fb8c"
+            ]
+        ]
+    },
+    {
+        "id": "4a15cc699e2e1db6",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 11",
+        "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_4/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_4/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 3760,
+        "wires": [
+            [
+                "5a2a29c4b1399ffc"
+            ],
+            [
+                "95a6d0b7d402cc5f"
+            ]
+        ]
+    },
+    {
+        "id": "c53cd029eeac67f2",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "15ec25ca89fb9bca",
+        "name": "",
+        "label": "Start Hour",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "start_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 230,
+        "y": 3680,
+        "wires": [
+            [
+                "4a15cc699e2e1db6"
+            ]
+        ]
+    },
+    {
+        "id": "9420140c52cb798b",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "15ec25ca89fb9bca",
+        "name": "",
+        "label": "End Hour",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "topic": "end_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 220,
+        "y": 3800,
+        "wires": [
+            [
+                "4a15cc699e2e1db6"
+            ]
+        ]
+    },
+    {
+        "id": "3af814369c441ef7",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "15ec25ca89fb9bca",
+        "name": "",
+        "label": "Start Minutes",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "topic": "start_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 230,
+        "y": 3740,
+        "wires": [
+            [
+                "4a15cc699e2e1db6"
+            ]
+        ]
+    },
+    {
+        "id": "c2ab2a114ea1b525",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "15ec25ca89fb9bca",
+        "name": "",
+        "label": "End Minutes",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "topic": "end_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 230,
+        "y": 3860,
+        "wires": [
+            [
+                "4a15cc699e2e1db6"
+            ]
+        ]
+    },
+    {
+        "id": "7ac7c78f37413408",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 12",
+        "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_5/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_5/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 4000,
+        "wires": [
+            [
+                "dd0d7954c0e9447d"
+            ],
+            [
+                "7a28f00f88e3321e"
+            ]
+        ]
+    },
+    {
+        "id": "de6a552bd5d65ae2",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "0ab3157e42b6ce6d",
+        "name": "",
+        "label": "Start Hour",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "start_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 230,
+        "y": 3920,
+        "wires": [
+            [
+                "7ac7c78f37413408"
+            ]
+        ]
+    },
+    {
+        "id": "30fba86a2084b15a",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "0ab3157e42b6ce6d",
+        "name": "",
+        "label": "End Hour",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "topic": "end_hour",
+        "topicType": "str",
+        "min": 0,
+        "max": "24",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 220,
+        "y": 4040,
+        "wires": [
+            [
+                "7ac7c78f37413408"
+            ]
+        ]
+    },
+    {
+        "id": "75472489d1cd4a7f",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "0ab3157e42b6ce6d",
+        "name": "",
+        "label": "Start Minutes",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "topic": "start_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 230,
+        "y": 3980,
+        "wires": [
+            [
+                "7ac7c78f37413408"
+            ]
+        ]
+    },
+    {
+        "id": "42a6c3f02ed20c6a",
+        "type": "ui-number-input",
+        "z": "0cf4987334f232d5",
+        "group": "0ab3157e42b6ce6d",
+        "name": "",
+        "label": "End Minutes",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "topic": "end_minute",
+        "topicType": "str",
+        "min": 0,
+        "max": "59",
+        "step": 1,
+        "tooltip": "",
+        "passthru": true,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 230,
+        "y": 4100,
+        "wires": [
+            [
+                "7ac7c78f37413408"
+            ]
+        ]
+    },
+    {
+        "id": "699cf6c40292ff0e",
+        "type": "ui-text",
+        "z": "0cf4987334f232d5",
+        "group": "fd423f325e9187c2",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Window Status",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payloads",
+        "valueType": "msg",
+        "x": 900,
+        "y": 1560,
+        "wires": []
+    },
+    {
+        "id": "2e9b8c08e01e735f",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/control/temp/window_angle",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 220,
+        "y": 1560,
+        "wires": [
+            [
+                "0c09e79814377ccd"
+            ]
+        ]
+    },
+    {
+        "id": "cf78856b14ec91ea",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_temp_reading/temperature_C",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 240,
+        "y": 1740,
+        "wires": [
+            [
+                "f5479db3d46d33df"
+            ]
+        ]
+    },
+    {
+        "id": "f5479db3d46d33df",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "function 13",
+        "func": "let value = parseFloat(msg.payload) || 0;   // 温度值\nlet now = new Date();                       // 当前时间\n\n// Chart 接受 {x, y}\nmsg.payload = {\n    x: now.getTime(),   // 毫秒时间戳\n    y: value            // 温度数值\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 1740,
+        "wires": [
+            [
+                "c13647ff331a4615"
+            ]
+        ]
+    },
+    {
+        "id": "2d1a465b5c307eba",
+        "type": "ui-button",
+        "z": "0cf4987334f232d5",
+        "group": "3fb72b979ef39d02",
+        "name": "",
+        "label": "⚠ Kill Switch",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "\"Kill\"",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "red",
+        "textColor": "white",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 2100,
+        "wires": [
+            [
+                "40ce86dfab796196",
+                "3246eea995deb6c5"
+            ]
+        ]
+    },
+    {
+        "id": "55dd4fc29058f522",
+        "type": "ui-button",
+        "z": "0cf4987334f232d5",
+        "group": "8bd173bb5777473a",
+        "name": "",
+        "label": "⚠ Kill Switch",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "\"Kill\"",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "red",
+        "textColor": "white",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 2140,
+        "wires": [
+            [
+                "3246eea995deb6c5",
+                "40ce86dfab796196"
+            ]
+        ]
+    },
+    {
+        "id": "1d50f9b32179704d",
+        "type": "ui-button",
+        "z": "0cf4987334f232d5",
+        "group": "fd423f325e9187c2",
+        "name": "",
+        "label": "⚠ Kill Switch",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "\"Kill\"",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "red",
+        "textColor": "black",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 2180,
+        "wires": [
+            [
+                "40ce86dfab796196",
+                "3246eea995deb6c5"
+            ]
+        ]
+    },
+    {
+        "id": "formatHistorical",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Format Historical Logs",
+        "func": "let value = parseInt(msg.payload) || 0;\nlet now = new Date();   // 当前时间\n\nreturn {\n    payload: {\n        x: now.getTime(),  // 横轴 = 当前时间戳 (ms)\n        y: value           // 纵轴 = 传感器数值\n    }\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 100,
+        "wires": [
+            [
+                "soilChart"
+            ]
+        ]
+    },
+    {
+        "id": "d1b64b1a8e83f6c5",
+        "type": "mqtt in",
+        "z": "0cf4987334f232d5",
+        "name": "Soil Moisture MQTT",
+        "topic": "esp32/soil_moisture",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "mq_local",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "formatHistorical"
+            ]
+        ]
+    },
+    {
+        "id": "soilChart",
+        "type": "ui-chart",
+        "z": "0cf4987334f232d5",
+        "group": "0ae6f29fa3425fbb",
+        "name": "Soil Moisture Chart",
+        "label": "Soil Moisture Over Time",
+        "order": 2,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "Timestamp",
+        "xAxisProperty": "payload.x",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Soil Moisture",
+        "yAxisProperty": "payload.y",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "",
+        "bins": "",
+        "action": "append",
+        "stackSeries": false,
+        "pointRadius": "",
+        "showLegend": false,
+        "removeOlder": 1,
+        "removeOlderUnit": "86400",
+        "removeOlderPoints": "1000",
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 12,
+        "height": 6,
+        "className": "",
+        "interpolation": "linear",
+        "x": 890,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6780cea74f77e674",
+        "type": "firebase-in",
+        "z": "0cf4987334f232d5",
+        "name": "",
+        "constraints": {},
+        "database": "3d4483178e8d3fcd",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/latest_led_reading/voltage",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 170,
+        "y": 2340,
+        "wires": [
+            [
+                "b10ed0f3d35f39a0"
+            ]
+        ]
+    },
+    {
+        "id": "b10ed0f3d35f39a0",
+        "type": "ui-text",
+        "z": "0cf4987334f232d5",
+        "group": "a6414893ce03f128",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Voltage (V)",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "style": true,
+        "font": "",
+        "fontSize": "22",
+        "color": "#f91f06",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1010,
+        "y": 2340,
+        "wires": []
+    },
+    {
+        "id": "testInjectSoil",
+        "type": "inject",
+        "z": "0cf4987334f232d5",
+        "name": "Test Soil Moisture",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "num",
+        "x": 1240,
+        "y": 200,
+        "wires": [
+            [
+                "genRandomSoil"
+            ]
+        ]
+    },
+    {
+        "id": "genRandomSoil",
+        "type": "function",
+        "z": "0cf4987334f232d5",
+        "name": "Generate Random Soil Value",
+        "func": "let value = Math.floor(Math.random() * 1001); // 0~1000\nlet now = new Date();\n\nreturn {\n    payload: {\n        x: now.getTime(),\n        y: value\n    }\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1520,
+        "y": 200,
+        "wires": [
+            [
+                "soilChart"
+            ]
+        ]
+    },
+    {
+        "id": "mq_local",
+        "type": "mqtt-broker",
+        "name": "Local MQTT",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "node-red-ui",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthQos": "0",
+        "willQos": "0"
+    },
+    {
+        "id": "3d4483178e8d3fcd",
+        "type": "firebase-config",
+        "name": "Firebase RTDB",
+        "authType": "privateKey",
+        "claims": {},
+        "createUser": false,
+        "status": {
+            "firestore": false,
+            "storage": false
+        },
+        "useClaims": false
+    },
+    {
+        "id": "b27f746ec362eaf7",
+        "type": "ui-base",
+        "name": "Smart Plant Dashboard",
+        "path": "/dashboard",
+        "appIcon": "https://www.vecteezy.com/vector-art/24778374-smart-soil-monitoring-gradient-linear-vector-icon-iot-based-farming-moisture-sensor-precision-agriculture-thin-line-color-symbol-modern-style-pictogram-vector-isolated-outline-drawing\">smart-soil-monitoring-gradient-linear-vector-icon-iot-based-farming-moisture-sensor-precision-agriculture-thin-line-color-symbol-modern-style-pictogram-vector-isolated-outline-drawing Vectors by Vecteezy</a>",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "3fb72b979ef39d02",
+        "type": "ui-group",
+        "name": "Pump Controls",
+        "page": "ea494b91ea017e6e",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "0ae6f29fa3425fbb",
+        "type": "ui-group",
+        "name": "Soil Monitor",
+        "page": "ea494b91ea017e6e",
+        "width": 6,
+        "height": 1,
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "8bd173bb5777473a",
+        "type": "ui-group",
+        "name": "Water Level",
+        "page": "c313faa2d22d480a",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "fd423f325e9187c2",
+        "type": "ui-group",
+        "name": "Fan Control",
+        "page": "83e1184d724900a4",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a6414893ce03f128",
+        "type": "ui-group",
+        "name": "LED Controls",
+        "page": "08b858259f30cab8",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "d791a182c3b24495",
+        "type": "ui-group",
+        "name": "Manual Mode",
+        "page": "ea494b91ea017e6e",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "39dacddc1de95b82",
+        "type": "ui-group",
+        "name": "Pump Schedule (24 HOUR FORMAT 00:00 to 23:59)",
+        "page": "ea494b91ea017e6e",
+        "width": 6,
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "83f65f34f02e0934",
+        "type": "ui-group",
+        "name": "Schedule LED 1",
+        "page": "08b858259f30cab8",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "false",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "db2975e674e92310",
+        "type": "ui-group",
+        "name": "Schedule LED 2",
+        "page": "08b858259f30cab8",
+        "width": 6,
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "87c5e5d3197c6a39",
+        "type": "ui-group",
+        "name": "Schedule LED 3",
+        "page": "08b858259f30cab8",
+        "width": 6,
+        "height": 1,
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "15ec25ca89fb9bca",
+        "type": "ui-group",
+        "name": "Schedule LED 4",
+        "page": "08b858259f30cab8",
+        "width": 6,
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "0ab3157e42b6ce6d",
+        "type": "ui-group",
+        "name": "Schedule LED 5",
+        "page": "08b858259f30cab8",
+        "width": 6,
+        "height": 1,
+        "order": 6,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ea494b91ea017e6e",
+        "type": "ui-page",
+        "name": "Pump Controls",
+        "ui": "b27f746ec362eaf7",
+        "path": "/page2",
+        "icon": "fountain",
+        "layout": "grid",
+        "theme": "44acb54637d85498",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "c313faa2d22d480a",
+        "type": "ui-page",
+        "name": "Water Level",
+        "ui": "b27f746ec362eaf7",
+        "path": "/page3",
+        "icon": "water-check",
+        "layout": "grid",
+        "theme": "44acb54637d85498",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 3,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "83e1184d724900a4",
+        "type": "ui-page",
+        "name": "Fan Control",
+        "ui": "b27f746ec362eaf7",
+        "path": "/page7",
+        "icon": "fan",
+        "layout": "grid",
+        "theme": "44acb54637d85498",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 2,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "08b858259f30cab8",
+        "type": "ui-page",
+        "name": "LED Controls",
+        "ui": "b27f746ec362eaf7",
+        "path": "/page1",
+        "icon": "lightbulb",
+        "layout": "grid",
+        "theme": "44acb54637d85498",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 4,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "44acb54637d85498",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "900f0b28cd982feb",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@gogovega/node-red-contrib-firebase-realtime-database": "0.8.0",
+            "@flowfuse/node-red-dashboard": "1.27.0",
+            "@gogovega/firebase-config-node": "0.3.0"
+        }
+    }
+]
