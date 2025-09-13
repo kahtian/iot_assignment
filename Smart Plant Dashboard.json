@@ -87,25 +87,6 @@
         ]
     },
     {
-        "id": "e8724a79c736b9d2",
-        "type": "rbe",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "func": "rbe",
-        "gap": "",
-        "start": "",
-        "inout": "out",
-        "septopics": true,
-        "property": "payload",
-        "x": 470,
-        "y": 560,
-        "wires": [
-            [
-                "521aba7f702fa1e5"
-            ]
-        ]
-    },
-    {
         "id": "8c7a85fcac3ea85a",
         "type": "mqtt in",
         "z": "0cf4987334f232d5",
@@ -131,7 +112,7 @@
         "type": "function",
         "z": "0cf4987334f232d5",
         "name": "Moisture Gauge Fn",
-        "func": "let v = parseInt(msg.payload);\nreturn { payload: isNaN(v) ? 0 : v };\n",
+        "func": "let v = parseInt(msg.payload.y);\nreturn { payload: isNaN(v) ? 0 : v };\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -182,63 +163,6 @@
         "wires": [
             [
                 "152ee8d5717fd2ac"
-            ]
-        ]
-    },
-    {
-        "id": "b2d593a9c75def87",
-        "type": "rbe",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "func": "rbe",
-        "gap": "",
-        "start": "",
-        "inout": "out",
-        "septopics": true,
-        "property": "payload",
-        "x": 470,
-        "y": 380,
-        "wires": [
-            [
-                "d04916e6faa21c8a"
-            ]
-        ]
-    },
-    {
-        "id": "25b3b720c9d6291d",
-        "type": "rbe",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "func": "rbe",
-        "gap": "",
-        "start": "",
-        "inout": "out",
-        "septopics": true,
-        "property": "payload",
-        "x": 470,
-        "y": 440,
-        "wires": [
-            [
-                "1499cad3cd6ea6d5"
-            ]
-        ]
-    },
-    {
-        "id": "1f6d08442ff7af3d",
-        "type": "rbe",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "func": "rbe",
-        "gap": "",
-        "start": "",
-        "inout": "out",
-        "septopics": true,
-        "property": "payload",
-        "x": 470,
-        "y": 500,
-        "wires": [
-            [
-                "851f5204b4d98012"
             ]
         ]
     },
@@ -369,28 +293,6 @@
         "wires": []
     },
     {
-        "id": "6e5524919c6eb4ee",
-        "type": "firebase-in",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "constraints": {},
-        "database": "3d4483178e8d3fcd",
-        "inputs": 0,
-        "listenerType": "value",
-        "outputType": "auto",
-        "passThrough": false,
-        "path": "/control/pump_mode/schedule/start_min",
-        "pathType": "str",
-        "useConstraints": false,
-        "x": 230,
-        "y": 380,
-        "wires": [
-            [
-                "b2d593a9c75def87"
-            ]
-        ]
-    },
-    {
         "id": "01831ee87b5bbf35",
         "type": "firebase-out",
         "z": "0cf4987334f232d5",
@@ -441,28 +343,6 @@
         "wires": []
     },
     {
-        "id": "b029c8137485ecff",
-        "type": "firebase-in",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "constraints": {},
-        "database": "3d4483178e8d3fcd",
-        "inputs": 0,
-        "listenerType": "value",
-        "outputType": "auto",
-        "passThrough": false,
-        "path": "/control/pump_mode/schedule/end_hour",
-        "pathType": "str",
-        "useConstraints": false,
-        "x": 240,
-        "y": 440,
-        "wires": [
-            [
-                "25b3b720c9d6291d"
-            ]
-        ]
-    },
-    {
         "id": "f393a307cab2f9b3",
         "type": "firebase-out",
         "z": "0cf4987334f232d5",
@@ -489,28 +369,6 @@
         "x": 970,
         "y": 500,
         "wires": []
-    },
-    {
-        "id": "ae72d585998a738e",
-        "type": "firebase-in",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "constraints": {},
-        "database": "3d4483178e8d3fcd",
-        "inputs": 0,
-        "listenerType": "value",
-        "outputType": "auto",
-        "passThrough": false,
-        "path": "/control/pump_mode/schedule/end_min",
-        "pathType": "str",
-        "useConstraints": false,
-        "x": 230,
-        "y": 500,
-        "wires": [
-            [
-                "1f6d08442ff7af3d"
-            ]
-        ]
     },
     {
         "id": "95862119e24d10fb",
@@ -633,28 +491,6 @@
         "x": 980,
         "y": 560,
         "wires": []
-    },
-    {
-        "id": "859eebc11ea4f10a",
-        "type": "firebase-in",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "constraints": {},
-        "database": "3d4483178e8d3fcd",
-        "inputs": 0,
-        "listenerType": "value",
-        "outputType": "auto",
-        "passThrough": false,
-        "path": "/control/pump_mode/manual_state",
-        "pathType": "str",
-        "useConstraints": false,
-        "x": 220,
-        "y": 560,
-        "wires": [
-            [
-                "e8724a79c736b9d2"
-            ]
-        ]
     },
     {
         "id": "ba628c8b5015d08c",
@@ -950,47 +786,6 @@
         "x": 970,
         "y": 260,
         "wires": []
-    },
-    {
-        "id": "6db1842d09289206",
-        "type": "rbe",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "func": "rbe",
-        "gap": "",
-        "start": "",
-        "inout": "out",
-        "septopics": true,
-        "property": "payload",
-        "x": 470,
-        "y": 320,
-        "wires": [
-            [
-                "7651303a77df7343"
-            ]
-        ]
-    },
-    {
-        "id": "e3b5916746efd522",
-        "type": "firebase-in",
-        "z": "0cf4987334f232d5",
-        "name": "",
-        "constraints": {},
-        "database": "3d4483178e8d3fcd",
-        "inputs": 0,
-        "listenerType": "value",
-        "outputType": "auto",
-        "passThrough": false,
-        "path": "/control/pump_mode/schedule/start_hour",
-        "pathType": "str",
-        "useConstraints": false,
-        "x": 240,
-        "y": 320,
-        "wires": [
-            [
-                "6db1842d09289206"
-            ]
-        ]
     },
     {
         "id": "8eaebd42fe20619f",
@@ -1917,7 +1712,7 @@
         "name": "Pump ui control",
         "ui": "b27f746ec362eaf7",
         "events": "all",
-        "x": 440,
+        "x": 160,
         "y": 260,
         "wires": [
             [
@@ -1934,7 +1729,7 @@
         "type": "function",
         "z": "0cf4987334f232d5",
         "name": "Window text",
-        "func": "let v = parseFloat(msg.payload);\nlet window = \"Closed\";\n\nif (v > 30) window = \"Open (too hot)\";\nelse if (v < 18) window = \"Closed (too cold)\";\nelse window = \"Auto\";\n\nreturn { payload: \"Window Status: \" + window };\n",
+        "func": "let v = parseFloat(msg.payload);\nlet window = \"Closed\";\n\nif (v > 30) window = \"Open (Too hot)\";\nelse if (v < 18) window = \"Closed (Too cold)\";\nelse window = \"Auto\";\n\nreturn { payload: \"Window Status: \" + window };\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -3638,7 +3433,7 @@
         "id": "1060205b1501c4d3",
         "type": "function",
         "z": "0cf4987334f232d5",
-        "name": "function 10",
+        "name": "Time 2",
         "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_2/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_2/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
         "outputs": 2,
         "timeout": 0,
@@ -3646,7 +3441,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
+        "x": 390,
         "y": 3220,
         "wires": [
             [
@@ -3905,7 +3700,7 @@
         "id": "c5ee612ce3af6112",
         "type": "function",
         "z": "0cf4987334f232d5",
-        "name": "function 4",
+        "name": "Time 1",
         "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_1/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_1/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
         "outputs": 2,
         "timeout": 0,
@@ -3913,7 +3708,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
+        "x": 410,
         "y": 3000,
         "wires": [
             [
@@ -4088,7 +3883,7 @@
         "id": "0b70c60293a1fb8c",
         "type": "function",
         "z": "0cf4987334f232d5",
-        "name": "function 9",
+        "name": "Time 3",
         "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_3/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_3/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
         "outputs": 2,
         "timeout": 0,
@@ -4096,7 +3891,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
+        "x": 410,
         "y": 3500,
         "wires": [
             [
@@ -4243,7 +4038,7 @@
         "id": "4a15cc699e2e1db6",
         "type": "function",
         "z": "0cf4987334f232d5",
-        "name": "function 11",
+        "name": "Time 4",
         "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_4/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_4/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
         "outputs": 2,
         "timeout": 0,
@@ -4251,7 +4046,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 430,
+        "x": 410,
         "y": 3760,
         "wires": [
             [
@@ -4398,7 +4193,7 @@
         "id": "7ac7c78f37413408",
         "type": "function",
         "z": "0cf4987334f232d5",
-        "name": "function 12",
+        "name": "Time 5",
         "func": "// Clamp helper to keep valid range\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, parseInt(n, 10) || 0));\n\n// Retrieve stored values\nlet sh = flow.get(\"start_hour\");\nlet sm = flow.get(\"start_minute\");\nlet eh = flow.get(\"end_hour\");\nlet em = flow.get(\"end_minute\");\n\n// Update based on which input triggered\nswitch (msg.topic) {\n    case \"start_hour\":\n        sh = clamp(msg.payload, 0, 23);\n        flow.set(\"start_hour\", sh);\n        break;\n    case \"start_minute\":\n        sm = clamp(msg.payload, 0, 59);\n        flow.set(\"start_minute\", sm);\n        break;\n    case \"end_hour\":\n        eh = clamp(msg.payload, 0, 23);\n        flow.set(\"end_hour\", eh);\n        break;\n    case \"end_minute\":\n        em = clamp(msg.payload, 0, 59);\n        flow.set(\"end_minute\", em);\n        break;\n}\n\n// Prepare outputs array\nlet outputs = [];\n\n// If start time complete, send to Firebase\nif (sh !== undefined && sm !== undefined) {\n    const hh = String(sh).padStart(2, \"0\");\n    const mm = String(sm).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_5/start_time\"\n    });\n}\n\n// If end time complete, send to Firebase\nif (eh !== undefined && em !== undefined) {\n    const hh = String(eh).padStart(2, \"0\");\n    const mm = String(em).padStart(2, \"0\");\n    outputs.push({\n        payload: `${hh}:${mm}`,\n        method: \"set\",\n        topic: \"/control/led/schedules/schedule_5/end_time\"\n    });\n}\n\n// Return one message at a time if both updated\nif (outputs.length > 1) {\n    return [outputs[0], outputs[1]];\n} else if (outputs.length === 1) {\n    return [outputs[0]];\n} else {\n    return null;\n}\n",
         "outputs": 2,
         "timeout": 0,
@@ -4406,7 +4201,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 430,
+        "x": 410,
         "y": 4000,
         "wires": [
             [
@@ -4557,19 +4352,19 @@
         "order": 3,
         "width": 0,
         "height": 0,
-        "name": "",
-        "label": "Window Status",
+        "name": "Status",
+        "label": "",
         "format": "{{msg.payload}}",
-        "layout": "row-spread",
+        "layout": "col-center",
         "style": false,
         "font": "",
         "fontSize": 16,
         "color": "#717171",
         "wrapText": false,
         "className": "",
-        "value": "payloads",
+        "value": "payload",
         "valueType": "msg",
-        "x": 900,
+        "x": 870,
         "y": 1560,
         "wires": []
     },
@@ -4922,8 +4717,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "num",
-        "x": 1240,
-        "y": 200,
+        "x": 1190,
+        "y": 40,
         "wires": [
             [
                 "genRandomSoil"
@@ -4938,11 +4733,12 @@
         "func": "let value = Math.floor(Math.random() * 1001); // 0~1000\nlet now = new Date();\n\nreturn {\n    payload: {\n        x: now.getTime(),\n        y: value\n    }\n};",
         "outputs": 1,
         "noerr": 0,
-        "x": 1520,
-        "y": 200,
+        "x": 1460,
+        "y": 40,
         "wires": [
             [
-                "soilChart"
+                "soilChart",
+                "b1ff47ab2e0d7a3c"
             ]
         ]
     },
@@ -4980,7 +4776,7 @@
         "type": "ui-base",
         "name": "Smart Plant Dashboard",
         "path": "/dashboard",
-        "appIcon": "https://www.vecteezy.com/vector-art/24778374-smart-soil-monitoring-gradient-linear-vector-icon-iot-based-farming-moisture-sensor-precision-agriculture-thin-line-color-symbol-modern-style-pictogram-vector-isolated-outline-drawing\">smart-soil-monitoring-gradient-linear-vector-icon-iot-based-farming-moisture-sensor-precision-agriculture-thin-line-color-symbol-modern-style-pictogram-vector-isolated-outline-drawing Vectors by Vecteezy</a>",
+        "appIcon": "https://www.flaticon.com/free-icon/plant_8809527?related_id=8809745&origin=search",
         "includeClientData": true,
         "acceptsClientConfig": [
             "ui-notification",
@@ -5327,7 +5123,7 @@
         }
     },
     {
-        "id": "900f0b28cd982feb",
+        "id": "411699f6649d78d8",
         "type": "global-config",
         "env": [],
         "modules": {
