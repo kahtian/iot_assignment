@@ -10,7 +10,6 @@
 #include "time.h"
 
 // --- WiFi & Firebase Configuration ---
-// IMPORTANT: Replace with your network credentials and Firebase project details
 const char* WIFI_SSID = "Wassup";
 const char* WIFI_PASSWORD = "zhengxuan1121";
 #define API_KEY "AIzaSyDJXRY084sI0LWgpClDVLYYIx98oz-R5sc"
@@ -127,7 +126,7 @@ void loop() {
     // Continuously handle LED and buzzer alerts
     handleAlerts();
     
-    // Use millis() to print the state without blocking
+    
     if (millis() - printStatePrevMillis > 1000) {
         printStatePrevMillis = millis();
         printCurrentState();
